@@ -61,13 +61,13 @@ $db['default']['password'] = 'grauindus9435';
 $db['default']['database'] = 'p7000190_grau';
 */
 
-	
+	/*
 	'dsn'	=> 'mysql:dbname=programa_rojo;host=mysql.grauindus.cl',
 	'hostname' => '',
 	'username' => 'user_rojo',
 	'password' => '1|UmN7DG',
 	'database' => '',
-	
+	*/
 	/*
 	'dsn'	=> 'mysql:dbname=p7000190_grau;host=localhost',
 	'hostname' => '',
@@ -75,7 +75,11 @@ $db['default']['database'] = 'p7000190_grau';
 	'password' => '',
 	'database' => '',
 	*/
-$db['default']['dbdriver'] = 'pdo';
+$db['default']['hostname'] = 'mysql.grauindus.cl';
+$db['default']['username'] = 'user_rojo';
+$db['default']['password'] = '1|UmN7DG';
+$db['default']['database'] = 'programa_rojo';	
+$db['default']['dbdriver'] = 'mysqli';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = TRUE;
 $db['default']['db_debug'] = TRUE;
