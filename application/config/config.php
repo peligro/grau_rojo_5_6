@@ -14,7 +14,7 @@
 | path to your installation.
 |
 */
-$config['base_url']	= '';
+$config['base_url']	= 'http://www.grauindus.cl/apps/rojo_5_6/';
 /*
 |--------------------------------------------------------------------------
 | Index File
