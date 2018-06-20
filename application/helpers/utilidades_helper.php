@@ -1,5 +1,46 @@
 <?php
-
+/**
+ * función para validar el formato en el que los usuarios ingresan el RUT
+ * */
+ if(!function_exists('validaRut'))
+ {
+    function validaRut($rut)
+    {
+        $punto = strpos($rut,'.');
+                                if($punto==false)
+                                {
+                                    //die(' no tiene punto '.$rut);
+                                    $rut=$rut;
+                                }else
+                                {
+                                    //die(' si tiene punto '.$rut.' en la posición '.$punto);
+                                    $explode=explode('.',$rut);
+                                    //print_r($explode);
+                                    $rut_explode='';
+                                    for($j=0;$j<sizeof($explode);$j++)
+                                    {
+                                        $rut_explode.=$explode[$j];
+                                        
+                                    }
+                                    $rut= $rut_explode;
+                                }
+                                $guion = strpos($rut,'-');
+                                if($guion==false)
+                                {
+                                    //die(' no tiene guión '.$rut);
+                                    //echo strlen($rut);
+                                    //6585422-8
+                                    $rut=substr($rut,0,strlen($rut)-1).'-'.substr($rut,strlen($rut)-1,1);
+                                    
+                                    //echo $rut;
+                                }else
+                                {
+                                    //die(' si tiene guión '.$rut.' en la posición '.$guion);
+                                    $rut=$rut;
+                                }
+        return $rut;
+    }
+ }
 if ( ! function_exists('saludo') )
 {
 	function saludo(/* polimorfica */)

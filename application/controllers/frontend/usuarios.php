@@ -234,7 +234,8 @@ class Usuarios extends CI_Controller {
  		              if ( $this->form_validation->run('logueo') )
     			         {
     			             //echo sha1($this->input->post('pass',true))."<br>";
-                             $datos=$this->usuarios_model->logueo($this->input->post('rut',true),sha1($this->input->post('pass',true))); 
+                             $rut=validaRut($this->input->post('rut',true));
+                             $datos=$this->usuarios_model->logueo($rut,sha1($this->input->post('pass',true))); 
                              //echo $datos;exit;
                              if(sizeof($datos)>=1)
                              {
