@@ -10,22 +10,23 @@
     <meta name="author" content="www.cesarcancino.com" />
 	
 		<link rel="stylesheet" href="<?php echo base_url(); ?>public/backend/css/bootstrap-cerulean.min.css" />
-		<link rel="stylesheet" href="<?php echo base_url(); ?>public/frontend/tablebootstrap/dist/bootstrap-table.css" />
+		<!--<link rel="stylesheet" href="<?php echo base_url(); ?>public/frontend/tablebootstrap/dist/bootstrap-table.css" />
                 <link rel="stylesheet" href="<?php echo base_url(); ?>public/frontend/css/dataTables.bootstrap.min.css" />
 
 
 		<link rel="stylesheet" href="<?php echo base_url(); ?>public/backend/css/admin_rojo.css" />
-         <?php echo $this->layout->css; ?> 
-				<script src="<?php echo base_url(); ?>public/backend/js/jquery-1.8.1.min.js"></script>
-        <!--
-<script src="<?php echo base_url(); ?>public/backend/js/jquery-ui-1.9.0.custom.min.js"></script>
+         
 -->
+<?php echo $this->layout->css; ?> 
+                <script src="<?php echo base_url(); ?>public/backend/js/jquery-1.8.1.min.js"></script>
+<!--        
+<script src="<?php echo base_url(); ?>public/backend/js/jquery-ui-1.9.0.custom.min.js"></script>-->
 		<script src="<?php echo base_url(); ?>public/backend/js/bootstrap.min.js"></script>
 		<script src="<?php echo base_url(); ?>public/frontend/tablebootstrap/dist/bootstrap-table.js"> </script>
         <script src="<?php echo base_url(); ?>public/backend/js/reloj.js"></script>
          <?php echo $this->layout->js; ?> 
          <script type="text/javascript">var webroot = '<?php echo base_url(); ?>';</script>
-        <script src="<?php echo base_url(); ?>public/frontend/js/funciones.js"></script>
+        <script src="<?php echo base_url(); ?>public/frontend/js/funciones.js?estilo=<?php echo strtotime(date("Y-m-d H:i:s"));?>"></script>
         
          <script src="<?php echo base_url(); ?>public/frontend/js/jquery.dataTables.min.js"></script>
     <script src="<?php echo base_url(); ?>public/frontend/js/dataTables.bootstrap.min.js"></script>
@@ -99,7 +100,7 @@
         			
                      Todos los derechos reservados a Empresas Grau <?php echo date("Y")?>
                     <br />
-                    Desarrollado por <a href="#" target="_blank" title="Web Master" style="color: #ffffff;text-decoration: none;">Web M1aster</a>
+                    Desarrollado por <a href="#" target="_blank" title="Web Master" style="color: #ffffff;text-decoration: none;">Web Master</a>
                     
         		</div>
         	

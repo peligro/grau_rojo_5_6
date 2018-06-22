@@ -71,9 +71,11 @@
   margin-top: -3.5%;
 }
 </style>
-<link rel = "stylesheet" type = "text/css" href = "<?php echo base_url(); ?>css/datepicker.css">
-<script type = 'text/javascript' src = "<?php echo base_url(); ?>js/bootstrap-datepicker.js"></script>
-<script type = 'text/javascript' src = "<?php echo base_url(); ?>js/mis_funciones.js"></script>
+<!--<link rel = "stylesheet" type = "text/css" href = "<?php echo base_url(); ?>public/frontend/datepicker/css/datepicker.css">
+<script type = 'text/javascript' src = "<?php echo base_url(); ?>public/frontend/datepicker/js/bootstrap-datepicker.js"></script>
+
+<script type = 'text/javascript' src = "<?php echo base_url(); ?>public/frontend/js/mis_funciones.js"></script>
+-->
 <?php $this->layout->element('admin_mensaje_validacion'); ?>
 <?php //print_r($control_cartulina); exit(); ?>
 
@@ -117,7 +119,9 @@
                   {
                     case '1':
                         ?>
-                        <div onclick="ver_informacion('informacion')" class="page-header"><h3>Control Cartulina - Orden de Producción N° <?php echo $ordenDeCompra->id?></h3></div>
+                        <div class="page-header">
+                        <!--<div onclick="ver_informacion('informacion')" class="page-header">-->
+                          <h3>Control Cartulina - Orden de Producción N° <?php echo $ordenDeCompra->id?></h3></div>
                         <div id="informacion"  style="margin-left: 0px;width:100%;float:left;height: 440px;">
                             <div class="controls" style="margin-left: 0px;width:40%;float:left;">                        
                         <ul>
@@ -209,7 +213,23 @@
                                   } else {
                                     $fecha_liberada_foto=fecha($fotomecanica2->fecha_liberada);
                                   } ?>
-                                  <li>Fecha de liberacion Fotomecanica : <strong><?php echo $fecha_liberada_foto; ?></strong></li>
+                                  <li>Fecha de liberacion Fotomecánica : <strong><?php echo $fecha_liberada_foto; ?></strong></li>
+                                  <?php
+                                  if($control_cartulina->estado=='1')
+                                  {
+                                      ?>
+                                    <li>Fecha de liberacion Control cartunina : <strong><?php echo fecha($control_cartulina->fecha_liberada); ?></strong></li>
+                                    <li><strong>Valores de Bobina</strong> : 
+                                    <ul>
+                                      <li>Gramaje: <?php echo $bobinas->gramaje?></li>
+                                      <li>Kilos: <?php echo $bobinas->kilos?></li>
+                                      <li>Ancho: <?php echo $bobinas->ancho?></li>
+                                    </ul>
+                                  </li>
+                                      <?php
+                                  }
+                                  ?>
+                                  
                                   <?php if ($control_cartulina->fecha_liberada!='0000-00-00 00:00:00') { ?>
                                     <li>Fecha de liberacion Control Cartulina : <strong><?php echo fecha($control_cartulina->fecha_liberada); ?></strong></li>
                                   <?php } ?>
@@ -283,8 +303,9 @@
                      <li>Metros de Cuchillo : <strong><?php echo $ing->metros_de_cuchillo;  ?> Cms</strong></li>        
                      <li>Descripción de la placa : <strong><?php echo $materialidad_1->nombre?></strong></li>
 
-                     <li>CCAC1 : <strong><?php echo (($ing->tamano_a_imprimir_1-$ing->tamano_cuchillo_1)*10); ?> Mms</strong></li>
-                     <li>CCAC2 : <strong><?php echo (($ing->tamano_a_imprimir_2-$ing->tamano_cuchillo_2)*10) ?> Mms</strong></li>                     
+                     <li>CCAC1 : <strong><?php echo number_format((($ing->tamano_a_imprimir_1-$ing->tamano_cuchillo_1)*10),1,',','.');?> Mms</strong></li>
+                     <li>CCAC2 : <strong><?php echo number_format((($ing->tamano_a_imprimir_2-$ing->tamano_cuchillo_2)*10),1,',','.') ?> Mms</strong></li>
+                     <li>Ancho mínimo cartulina : <strong><?php echo number_format($ing->tamano_cuchillo_1+2,1,',','.');?> (<?php echo ($ing->tamano_cuchillo_1+2)*10?> milímetros)</strong></li>                   
                 </ul>
             	</div>  
     </div>
@@ -1223,7 +1244,7 @@
     <div class="control-group">
       <label class="control-label" for="usuario">Ancho seleccionado de bobina (<?php echo ($ing->tamano_a_imprimir_1);?> Cms) 1ra Bobina</label>
       <div class="controls">
-        <input type="text" name="ancho_seleccionado_de_bobina" id="ancho_seleccionado_de_bobina"  value="<?php if($control_cartulina->ancho_seleccionado_de_bobina >0){echo ($control_cartulina->ancho_seleccionado_de_bobina);}else {echo ($ing->tamano_a_imprimir_1*10);}?>" placeholder="Ancho seleccionado de bobina" onchange="validar_ancho_bobina_seleccionada();" onchange="/*validacion_ancho_bobina_seleccionada_control_cartulina();ControlGranajeSeleccionado(<?php //echo $id?>);limpiar_cortes_control_cartulina();"/> <strong>(Mms)</strong><span id="metros_ingresados_bobina1"></span>
+        <input type="text" name="ancho_seleccionado_de_bobina" id="ancho_seleccionado_de_bobina"  value="<?php if($control_cartulina->ancho_seleccionado_de_bobina >0){echo ($control_cartulina->ancho_seleccionado_de_bobina);}else {echo ($ing->tamano_a_imprimir_1*10);}?>" placeholder="Ancho seleccionado de bobina" onblur="validar_ancho_bobina_seleccionada('1');"/> <strong>(Mms)</strong><span id="metros_ingresados_bobina1"></span>
       </div>
     </div>
 
@@ -1291,7 +1312,7 @@
       <div class="control-group">
         <label class="control-label" for="usuario">Ancho seleccionado de bobina (<?php echo ($ing->tamano_a_imprimir_1);?> Cms) 2da Bobina</label>
         <div class="controls">
-          <input type="text" name="ancho_seleccionado_de_bobina2" id="ancho_seleccionado_de_bobina2"  value="<?php if ($control_cartulina->ancho_seleccionado_de_bobina2>0) { echo $control_cartulina->ancho_seleccionado_de_bobina2;}else{echo 0;}//if($bobinas->ancho >0){echo ($bobinas->ancho);}else {echo ($ing->tamano_a_imprimir_1*10);}?>" placeholder="Ancho seleccionado de bobina" onblur="//validacion_ancho_bobina_seleccionada_control_cartulina2();" onchange="/*validacion_ancho_bobina_seleccionada_control_cartulina2();*/ControlGranajeSeleccionado(<?php echo $id?>);limpiar_cortes_control_cartulina();"/> <strong>(Mms)</strong><span id="metros_ingresados_bobina2"></span>
+          <input type="text" name="ancho_seleccionado_de_bobina2" id="ancho_seleccionado_de_bobina2"  value="<?php if ($control_cartulina->ancho_seleccionado_de_bobina2>0) { echo $control_cartulina->ancho_seleccionado_de_bobina2;}else{echo 0;}//if($bobinas->ancho >0){echo ($bobinas->ancho);}else {echo ($ing->tamano_a_imprimir_1*10);}?>" placeholder="Ancho seleccionado de bobina" onblur="validar_ancho_bobina_seleccionada('2');" onchange="/*validacion_ancho_bobina_seleccionada_control_cartulina2();*/ControlGranajeSeleccionado(<?php echo $id?>);limpiar_cortes_control_cartulina();"/> <strong>(Mms)</strong><span id="metros_ingresados_bobina2"></span>
         </div>
       </div> 
 
@@ -1301,6 +1322,16 @@
             <input type="text" name="kilos_bobina_seleccionada2"   max="4000" class="limitvalue" onblur="/*validacion_kilos_bobina_seleccionada_control_cartulina();*/reiniciar_calculos_bobinas_cortes();" id="kilos_bobina_seleccionada2"  value="<?php if ($control_cartulina->kilos_bobina_seleccionada2>0) { echo $control_cartulina->kilos_bobina_seleccionada2;}else{echo 0;}//if($control_cartulina->kilos_bobina_seleccionada >0){echo ($bobinas->kilos);}?>" placeholder="0"/> <strong>(Kg)</strong><span id="resto2_metros"></span><span class="" id="resto2"></span>
         </div>
       </div> 
+      <div class="control-group">
+      <label class="control-label" for="usuario"><strong>Hay que bobinar</strong></label>
+      <div class="controls">
+        <select id="hay_que_bobinar2" name="hay_que_bobinar2">
+          <option value="" <?php if (sizeof($control_cartulina)==0){echo "selected";}?>>Seleccione</option>                                            
+          <option value="NO" <?php echo set_value_select($control_cartulina,'hay_que_bobinar',$control_cartulina->hay_que_bobinar,'NO');?>>NO</option>
+          <option value="SI" <?php echo set_value_select($control_cartulina,'hay_que_bobinar',$control_cartulina->hay_que_bobinar,'SI');?>>SI</option>
+        </select>
+      </div>
+          </div>
     </div>
     </div>
   <div id="tercera_bobina" style="display: none">
@@ -1348,7 +1379,7 @@
       <div class="control-group">
         <label class="control-label" for="usuario">Ancho seleccionado de bobina (<?php echo ($ing->tamano_a_imprimir_1);?> Cms) 3da Bobina</label>
         <div class="controls">
-          <input type="text" name="ancho_seleccionado_de_bobina3" id="ancho_seleccionado_de_bobina3"  value="<?php if ($control_cartulina->ancho_seleccionado_de_bobina3>0) { echo $control_cartulina->ancho_seleccionado_de_bobina3; }else {echo 0;}//if($bobinas->ancho >0){echo ($bobinas->ancho);}else {echo ($ing->tamano_a_imprimir_1*10);}?>" placeholder="Ancho seleccionado de bobina" onblur="//validacion_ancho_bobina_seleccionada_control_cartulina3();" onchange="/*validacion_ancho_bobina_seleccionada_control_cartulina3();*/ControlGranajeSeleccionado(<?php echo $id?>);limpiar_cortes_control_cartulina();"/> <strong>(Mms)</strong><span id="metros_ingresados_bobina3"></span>
+          <input type="text" name="ancho_seleccionado_de_bobina3" id="ancho_seleccionado_de_bobina3"  value="<?php if ($control_cartulina->ancho_seleccionado_de_bobina3>0) { echo $control_cartulina->ancho_seleccionado_de_bobina3; }else {echo 0;}//if($bobinas->ancho >0){echo ($bobinas->ancho);}else {echo ($ing->tamano_a_imprimir_1*10);}?>" placeholder="Ancho seleccionado de bobina" onblur="validar_ancho_bobina_seleccionada('3');" onchange="/*validacion_ancho_bobina_seleccionada_control_cartulina3();*/ControlGranajeSeleccionado(<?php echo $id?>);limpiar_cortes_control_cartulina();"/> <strong>(Mms)</strong><span id="metros_ingresados_bobina3"></span>
         </div>
       </div> 
 
@@ -1358,6 +1389,16 @@
             <input type="text" name="kilos_bobina_seleccionada3"  max="4000" class="limitvalue" onblur="/*validacion_kilos_bobina_seleccionada_control_cartulina();*/reiniciar_calculos_bobinas_cortes();" id="kilos_bobina_seleccionada3"  value="<?php if ($control_cartulina->kilos_bobina_seleccionada3>0) { echo $control_cartulina->kilos_bobina_seleccionada3; } else { echo 0; }//if($control_cartulina->kilos_bobina_seleccionada >0){echo ($bobinas->kilos);}?>" placeholder="0"/> <strong>(Kg)</strong><span id="resto3_metros"></span><span class="" id="resto3"></span>
         </div>
       </div> 
+      <div class="control-group">
+      <label class="control-label" for="usuario"><strong>Hay que bobinar</strong></label>
+      <div class="controls">
+        <select id="hay_que_bobinar3" name="hay_que_bobinar3">
+          <option value="" <?php if (sizeof($control_cartulina)==0){echo "selected";}?>>Seleccione</option>                                            
+          <option value="NO" <?php echo set_value_select($control_cartulina,'hay_que_bobinar',$control_cartulina->hay_que_bobinar,'NO');?>>NO</option>
+          <option value="SI" <?php echo set_value_select($control_cartulina,'hay_que_bobinar',$control_cartulina->hay_que_bobinar,'SI');?>>SI</option>
+        </select>
+      </div>
+          </div>
     </div>
     </div>
   <!------------------------------------------------------------------>
@@ -1729,6 +1770,8 @@
       <input type="hidden" name="tipo" value="<?php echo $tipo?>" />
       <input type="hidden" name="pagina" value="<?php echo $pagina?>" />
       <input type="hidden" name="id" value="<?php echo $id?>" />
+      <input type="hidden" name="orden_de_trabajo" value="<?php echo $orden_de_trabajo?>" />
+      <input type="hidden" name="ancho_minimo_bobina" value="<?php echo ($ing->tamano_cuchillo_1+2)*10?>" />
       <input type="hidden" name="id_cliente" value="<?php if($tipo==1){echo $datos->id_cliente;}else{echo $datos->cliente;}?>" />
       <input type="hidden" name="indicador" />
       <input type="hidden" name="estado" />
@@ -1801,7 +1844,7 @@
 
 
 			<input type="button" value="Liberar" style="display: none;" id="boton_liberar_parcial" class="liberar_boton_class btn" style="background-color: #ffcc33; border-radius: 5px; border-style: none" data-toggle="modal" data-target="<?php echo $modal; ?>">
-      <input type="button" value="Reversar" class="btn <?php if($control_cartulina->estado==4){echo 'btn-warning';}?>" onclick="guardarFormularioAdd('4');" data-toggle="modal" data-target="#myModal_reversar" onclick="reversar(<?php echo $dato->id ?>)" />
+      <input type="button" value="Reversar" class="btn <?php if($control_cartulina->estado==4){echo 'btn-warning';}?>" onclick="guardarFormularioAdd('4');" onclick="reversar(<?php echo $dato->id ?>)" />
       <?php if($control_cartulina->estado==3) {
         echo "<b>Esta orden ha sido liberada parcialmente</b>";
       } ?>
@@ -1964,12 +2007,14 @@ $(document).ready(function() {
 });
 </script>
 <script type="text/javascript">
+  /*
 $(document).ready(function() {
 	$(".datepicker").datepicker({
 		startDate	: 'today',
                 format          : 'yyyy-mm-dd',
 	});
 });
+*/
 </script>
 <script type="text/javascript">
     $(window).load(function() {
@@ -2023,7 +2068,19 @@ $(document).ready(function() {
       }
     });
 
+    /*
     $('#ancho_seleccionado_de_bobina').blur(function() {  
+        if ($('#ancho_seleccionado_de_bobina').val() < document.form.ancho_minimo_bobina.value ) {
+          alert('El ancho de la bobina debe ser mayor que '+document.form.ancho_minimo_bobina.value);
+          setTimeout(function(){$('#ancho_seleccionado_de_bobina').focus();}, 1);
+        }else if($('#ancho_seleccionado_de_bobina').val() > 2500){
+          alert('El ancho de la bobina debe ser menor que 2500');
+          setTimeout(function(){$('#ancho_seleccionado_de_bobina').focus();}, 1);
+        }
+    });
+    */
+    /*
+$('#ancho_seleccionado_de_bobina').blur(function() {  
         if ($('#ancho_seleccionado_de_bobina').val() < 600 ) {
           alert('El ancho de la bobina debe ser mayor que 600');
           setTimeout(function(){$('#ancho_seleccionado_de_bobina').focus();}, 1);
@@ -2032,7 +2089,7 @@ $(document).ready(function() {
           setTimeout(function(){$('#ancho_seleccionado_de_bobina').focus();}, 1);
         }
     });
-
+    */
     /*$('#kilos_bobina_seleccionada').blur(function() {  
         if ($('#kilos_bobina_seleccionada').val() < 200 ) {
           alert('Los kilos de la bobina debe ser mayor que 200');
@@ -2090,7 +2147,7 @@ $(document).ready(function() {
         return;
       }
     });
-
+    /*
     $('#kilos_bobina_seleccionada2').blur(function() {
       if ($('#kilos_bobina_seleccionada').val() > 0) {
         if (parseInt($('#kilos_bobina_seleccionada2').val()) < 200) {
@@ -2103,8 +2160,8 @@ $(document).ready(function() {
         }
       }
     });
-
-
+    */
+    /*
     $('#ancho_seleccionado_de_bobina2').blur(function() {
       if ($('#kilos_bobina_seleccionada').val() > 0) {
         if (parseInt($('#ancho_seleccionado_de_bobina2').val()) < 800) {
@@ -2117,7 +2174,8 @@ $(document).ready(function() {
         }
       }
     });
-
+    */
+    /*
     //Si no ha llenado los campos de bobina 2 no puede llenar la tercera
     $('#kilos_bobina_seleccionada3').click(function() {
       if ($('#kilos_bobina_seleccionada2').val() == "" || $('#kilos_bobina_seleccionada2'== 0)) {
@@ -2129,9 +2187,9 @@ $(document).ready(function() {
         setTimeout(function(){$('#ancho_seleccionado_de_bobina2').focus();}, 1);
       }
     });
+    */
 
-
-
+    /*
     $('#kilos_bobina_seleccionada3').blur(function() {
       if ($('#kilos_bobina_seleccionada2').val() > 0) {
         if (parseInt($('#kilos_bobina_seleccionada3').val()) < 200) {
@@ -2144,7 +2202,7 @@ $(document).ready(function() {
         }
       }
     });
-
+    */
     $('#ancho_seleccionado_de_bobina3').blur(function() {
       if ($('#kilos_bobina_seleccionada2').val() > 0) {
         if (parseInt($('#ancho_seleccionado_de_bobina3').val()) < 600) {
@@ -2653,18 +2711,18 @@ $("#kilos_bobina_seleccionada").on("keyup",function(){
         $("#resto1_metros").addClass("label label-danger-mio padding");    
         $("#resto1_metros").removeClass("label label-success padding");   
         $("#metros_ingresados_bobina1").text("Metros ingresados: "+resto_metros1); 
-        $("#resto1_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros)
+        $("#resto1_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros+" Pliegos Restantes: "+Math.round(pliegos_restantes))
 
         if (bob2>0) {
           $("#resto2_metros").addClass("label label-danger-mio padding");
           $("#resto2_metros").removeClass("label label-success padding");
-          $("#resto2_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros)
+          $("#resto2_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros+" Pliegos Restantes: "+Math.round(pliegos_restantes))
         }
 
         if (bob3>0) {
           $("#resto3_metros").addClass("label label-danger-mio padding");
           $("#resto3_metros").removeClass("label label-success padding");
-          $("#resto3_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros)
+          $("#resto3_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros+" Pliegos Restantes: "+Math.round(pliegos_restantes))
         }
         $('#total_metros_restantes').val(resta_de_metros);
         $('#total_metros_ingresados').val(total_metros_ingresados);
@@ -2824,18 +2882,18 @@ $("#kilos_bobina_seleccionada").on("keyup",function(){
         $("#resto1_metros").addClass("label label-danger-mio padding");    
         $("#resto1_metros").removeClass("label label-success padding");  
         $("#metros_ingresados_bobina1").text("Metros ingresados: "+resto_metros1);  
-        $("#resto1_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros)
+        $("#resto1_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros+" Pliegos Restantes: "+Math.round(pliegos_restantes))
 
         if (bob2>0) {
           $("#resto2_metros").addClass("label label-danger-mio padding");
           $("#resto2_metros").removeClass("label label-success padding");
-          $("#resto2_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros)
+          $("#resto2_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros+" Pliegos Restantes: "+Math.round(pliegos_restantes))
         }
 
         if (bob3>0) {
           $("#resto3_metros").addClass("label label-danger-mio padding");
           $("#resto3_metros").removeClass("label label-success padding");
-          $("#resto3_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros)
+          $("#resto3_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros+" Pliegos Restantes: "+Math.round(pliegos_restantes))
         }
         $('#total_metros_restantes').val(resta_de_metros);
         $('#total_metros_ingresados').val(total_metros_ingresados);
@@ -2973,9 +3031,12 @@ $("#kilos_bobina_seleccionada").on("keyup",function(){
       var total_metros_ingresados = Math.round(parseInt(resto_metros_ingresados1)+parseInt(resto_metros_ingresados2)+parseInt(resto_metros_ingresados3));
 
       var resta_de_metros = parseInt(total_metros)-parseInt(total_metros_ingresados);
+      var largo_a_cortar_cesar=<?php echo $ing->tamano_a_imprimir_2?>;
+      var pliegos_restantes=(resta_de_metros/largo_a_cortar_cesar)*100;
       if(resto_metros1<0){
         $("#resto1_metros").removeClass("label label-danger-mio padding");    
-        $("#resto1_metros").addClass("label label-success padding");    
+        $("#resto1_metros").addClass("label label-success padding"); 
+           
         $("#metros_ingresados_bobina1").text("Metros ingresados: "+resto_metros1);
         $("#resto1_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Sobrepasa por: "+(resta_de_metros*-1)+" Metros");
 
@@ -2997,7 +3058,8 @@ $("#kilos_bobina_seleccionada").on("keyup",function(){
         $("#resto1_metros").addClass("label label-danger-mio padding");    
         $("#resto1_metros").removeClass("label label-success padding");    
         $("#metros_ingresados_bobina1").text("Metros ingresados: "+resto_metros1);
-        $("#resto1_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros)
+        
+        $("#resto1_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros+" Pliegos Restantes: "+Math.round(pliegos_restantes));
 
         if (bob2>0) {
           $("#resto2_metros").addClass("label label-danger-mio padding");
@@ -3008,7 +3070,7 @@ $("#kilos_bobina_seleccionada").on("keyup",function(){
         if (bob3>0) {
           $("#resto3_metros").addClass("label label-danger-mio padding");
           $("#resto3_metros").removeClass("label label-success padding");
-          $("#resto3_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros)
+          $("#resto3_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+".9999 Metros Restantes: "+resta_de_metros)
         }
 
         $('#total_metros_restantes').val(resta_de_metros);
@@ -3148,7 +3210,7 @@ $("#kilos_bobina_seleccionada").on("keyup",function(){
       if(resto_metros2<0){
         $("#resto1_metros").removeClass("label label-danger-mio padding");    
         $("#resto1_metros").addClass("label label-success padding");    
-        $("#metros_ingresados_bobina2").text("Metros ingresados: "+resto_metros2);
+        $("#metros_ingresados_bobina2").text(" Metros ingresados: "+resto_metros2);
         $("#resto1_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Sobrepasa por: "+(resta_de_metros*-1)+" Metros");
 
         if (bob2>0) {
@@ -3168,17 +3230,17 @@ $("#kilos_bobina_seleccionada").on("keyup",function(){
         $("#resto1_metros").addClass("label label-danger-mio padding");    
         $("#resto1_metros").removeClass("label label-success padding");    
         $("#metros_ingresados_bobina2").text("Metros ingresados: "+resto_metros2);
-        $("#resto1_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros)
+        $("#resto1_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+".122222 Metros Restantes: "+resta_de_metros)
 
         if (bob2>0) {
           $("#resto2_metros").addClass("label label-danger-mio padding");
           $("#resto2_metros").removeClass("label label-success padding");
-          $("#resto2_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros)
+          $("#resto2_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+".12333333 Metros Restantes: "+resta_de_metros)
         }
         if (bob3>0) {
           $("#resto3_metros").addClass("label label-danger-mio padding");
           $("#resto3_metros").removeClass("label label-success padding");
-          $("#resto3_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros)
+          $("#resto3_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+".12345 Metros Restantes: "+resta_de_metros)
         }
         $('#total_metros_restantes').val(resta_de_metros);
         $('#total_metros_ingresados').val(total_metros_ingresados);
@@ -3332,7 +3394,7 @@ $("#kilos_bobina_seleccionada").on("keyup",function(){
         $("#resto1_metros").addClass("label label-danger-mio padding");    
         $("#resto1_metros").removeClass("label label-success padding");    
         $("#metros_ingresados_bobina2").text("Metros ingresados: "+resto_metros2);
-        $("#resto1_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+". Metros Restantes: "+resta_de_metros)
+        $("#resto1_metros").text("Total de metros ingresados (3 bobinas) "+total_metros_ingresados+".lalala1111 Metros Restantes: "+resta_de_metros)
 
         if (bob2>0) {
           $("#resto2_metros").addClass("label label-danger-mio padding");

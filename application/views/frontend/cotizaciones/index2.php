@@ -16,8 +16,8 @@
 <div class="control-group">
 		<label class="control-label" for="usuario">Cliente</label>
 		<div class="controls">
-			<select name="cliente" class="chosen-select" onchange="enviaSelect('clientes_cotizacion',this.value);">
-              
+			<select name="cliente" class="chosen-select">
+              <!--<select name="cliente" class="chosen-select" onchange="enviaSelect('clientes_cotizacion',this.value);">-->
                  <option value="0">Seleccione.....</option>
                 <?php
                 $clientes=$this->clientes_model->getClientesNormal();
@@ -78,7 +78,10 @@
 </div>
         
 <div>
-    <a class="btn btn-success pull-left" href="<?php echo base_url()?>cotizaciones/add">Agregar Solicitud de Cotización</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="btn btn-warning" id="borrar" data-target="#exampleModal">Borrar Cotizaciones</a>
+    <a class="btn btn-success pull-left" href="javascript:void();">Agregar Solicitud de Cotización</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="btn btn-warning" id="borrar" data-target="#exampleModal">Borrar Cotizaciones</a>
+    <!--
+<a class="btn btn-success pull-left" href="<?php echo base_url()?>cotizaciones/add">Agregar Solicitud de Cotización</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="btn btn-warning" id="borrar" data-target="#exampleModal">Borrar Cotizaciones</a>
+    -->
    <br /><br />
 	<!-- Buscador -->
         <div class="centrar" style="text-align: center; color:#ffffff;; margin:0px auto; width: 400px; font-size: 16px; font-weight: bold; background-color: green;">

@@ -1579,12 +1579,12 @@ class Produccion extends CI_Controller {
 	/**
      * Control Cartulina
      * */
-     public function control_cartulina($tipo=null,$id=null,$pagina=null)
+     public function control_cartulina($tipo=null,$id=null,$pagina=null,$orden_de_trabajo=null)
 	{
         if($this->session->userdata('id'))
         {
           
-            if(!$tipo or !$id){show_404();}
+            if(!$tipo or !$id or !$orden_de_trabajo){show_404();}
            switch($tipo)
                     {
                         case '1':
@@ -2088,21 +2088,51 @@ class Produccion extends CI_Controller {
                         "menu_bobina_pliego"                            =>$menu_bobina_pliego,
                         "total_metros_ingresados"                       =>$total_metros_ingresados
                         );
-                    
+                    //print_r($_POST);exit;
                     $bobina = array(
+                        "id_nodo"=>$this->input->post('id',true),
+                        //"descripcion"=>$this->input->post('descripcion_de_la_tapa2',true),
+                        "gramaje"=>$this->input->post('gramaje_seleccionado',true),
+                        "kilos"=>$this->input->post('kilos_bobina_seleccionada',true),
+                        "ancho"=>$this->input->post('ancho_seleccionado_de_bobina',true),
+                    );
+                    $bobina1 = array(
+                        "id_nodo"=>$this->input->post('id',true),
+                        //"descripcion"=>$this->input->post('descripcion_de_la_tapa2',true),
+                        "gramaje"=>$this->input->post('gramaje_seleccionado',true),
+                        "kilos"=>$this->input->post('kilos_bobina_seleccionada',true),
+                        "ancho"=>$this->input->post('ancho_seleccionado_de_bobina',true),
+                        'hay_que_bobinar'=>$this->input->post('hay_que_bobinar',true),
+                    );
+                    $bobina2 = array(
                         "id_nodo"=>$this->input->post('id',true),
                         //"descripcion"=>$this->input->post('descripcion_de_la_tapa2',true),
                         "gramaje"=>$this->input->post('gramaje_seleccionado2',true),
                         "kilos"=>$this->input->post('kilos_bobina_seleccionada2',true),
                         "ancho"=>$this->input->post('ancho_seleccionado_de_bobina2',true),
+                        'hay_que_bobinar'=>$this->input->post('hay_que_bobinar2',true),
                     );
+                    $bobina3 = array(
+                        "id_nodo"=>$this->input->post('id',true),
+                        //"descripcion"=>$this->input->post('descripcion_de_la_tapa2',true),
+                        "gramaje"=>$this->input->post('gramaje_seleccionado3',true),
+                        "kilos"=>$this->input->post('kilos_bobina_seleccionada3',true),
+                        "ancho"=>$this->input->post('ancho_seleccionado_de_bobina3',true),
+                        'hay_que_bobinar'=>$this->input->post('hay_que_bobinar3',true),
+                    );
+                    $this->bobinas_model->delete($id);
+                    $this->bobinas_model->insertar($bobina1);
+                    $this->bobinas_model->insertar($bobina2);
+                    $this->bobinas_model->insertar($bobina3);
                     //exit(print_r($bobina));exit();
+                    /*
                     if(sizeof($bobinas)==0)
                     {
                         $this->db->insert("bobinas",$bobina);
                     }else{
                         $this->db->update('bobinas', $bobina, array('id_nodo'=>$this->input->post('id',true)));
                     } 
+                    */
                     
                     if(sizeof($control_cartulina)==0)
                     {
@@ -2269,11 +2299,13 @@ class Produccion extends CI_Controller {
                     {
                         case '1':
                             $this->session->set_flashdata('ControllerMessage', 'Se ha guardado el registro exitosamente.');					            
-                            redirect(base_url().'produccion/cotizaciones/'.$this->input->post('pagina',true),  301);
+                            redirect(base_url().'produccion/control_cartulina/'.$tipo.'/'.$this->input->post('id').'/'.$pagina.'/'.$this->input->post('orden_de_trabajo'),  301);
+                            //redirect(base_url().'produccion/cotizaciones/'.$this->input->post('pagina',true),  301);
                         break;
                          case '2':
                             $this->session->set_flashdata('ControllerMessage', 'Se ha guardado el registro exitosamente.');					            
                             redirect(base_url().'produccion/fast/'.$this->input->post('pagina',true),  301);
+                            //redirect(base_url().'produccion/fast/'.$this->input->post('pagina',true),  301);
                         break;
                     }   
                 }
@@ -2304,7 +2336,8 @@ class Produccion extends CI_Controller {
                 )
             );            
             $usuarios=$this->usuarios_model->getUsuarios();
-            $this->layout->view("control_cartulina",compact('usuarios','datos','tipo','pagina','id','control_cartulina','ing','fotomecanica','hoja','fotomecanica2','orden','ordenDeCompra','tapa','monda','mliner','materialidad_1','materialidad_2','materialidad_3','bobinas')); 
+            //print_r($control_cartulina);exit;
+            $this->layout->view("control_cartulina",compact('usuarios','datos','tipo','pagina','id','control_cartulina','ing','fotomecanica','hoja','fotomecanica2','orden','ordenDeCompra','tapa','monda','mliner','materialidad_1','materialidad_2','materialidad_3','bobinas','orden_de_trabajo')); 
         }else
         {
             redirect(base_url().'usuarios/login',  301);

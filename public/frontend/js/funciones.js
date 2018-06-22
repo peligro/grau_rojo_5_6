@@ -3571,13 +3571,32 @@ function asignar_producto()
     }
 }
 
-function validar_ancho_bobina_seleccionada()
+function validar_ancho_bobina_seleccionada(quehago)
 {      
-    var ancho_bobina_seleccionada2=document.form.ancho_de_bobina.value; 
-    
-   if (document.form.ancho_seleccionado_de_bobina.value>ancho_bobina_seleccionada2)  
+    //alert("entré bien");return false;
+    var ancho_minimo_bobina= parseInt(document.form.ancho_minimo_bobina.value); 
+    switch(quehago)
     {
-      alert("No puedes ingresar un valor menor al Ancho de la bobina cotizada "); 
+      case '1':
+        var ancho_seleccionado_de_bobina=parseInt(document.form.ancho_seleccionado_de_bobina.value);
+      break;
+      case '2':
+        var ancho_seleccionado_de_bobina=parseInt(document.form.ancho_seleccionado_de_bobina2.value);
+      break;
+      case '3':
+        var ancho_seleccionado_de_bobina=parseInt(document.form.ancho_seleccionado_de_bobina3.value);
+      break;
+    }
+    
+    //alert(document.form.ancho_seleccionado_de_bobina.value+")\nancho bobina seleccionado2="+ancho_bobina_seleccionada2);return false;
+    //var ancho_bobina_seleccionada2=document.form.ancho_de_bobina.value;
+    
+   if (ancho_minimo_bobina>ancho_seleccionado_de_bobina)
+   //if (document.form.ancho_seleccionado_de_bobina.value>ancho_bobina_seleccionada2)  
+    {
+      alert("No puedes ingresar un valor menor al Ancho de la bobina cotizada ");
+      return false; 
+      //alert("No puedes ingresar un valor menor al Ancho de la bobina cotizada (ancho bobina: ("+ancho_minimo_bobina+")\nancho bobina seleccionado2="+ancho_seleccionado_de_bobina);
     } 
   }
 

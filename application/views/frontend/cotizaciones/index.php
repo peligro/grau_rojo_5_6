@@ -10,8 +10,8 @@
 <div class="control-group">
 		<label class="control-label" for="usuario">Cliente</label>
 		<div class="controls">
-			<select name="cliente" class="chosen-select" onchange="enviaSelect('clientes_cotizacion',this.value);">
-              
+			<select name="cliente">
+              <!--<select name="cliente" class="chosen-select" onchange="enviaSelect('clientes_cotizacion',this.value);">-->
                  <option value="0">Seleccione.....</option>
                 <?php
                 $clientes=$this->clientes_model->getClientesNormal();
@@ -70,7 +70,8 @@
     </div>
 </div>
 <div>
-	<a class="btn btn-success pull-left" href="<?php echo base_url()?>cotizaciones/add">Agregar Solicitud de Cotización</a>
+	<a class="btn btn-success pull-left" href="javascript:void(0);">Agregar Solicitud de Cotización</a>
+    <!--<a class="btn btn-success pull-left" href="<?php echo base_url()?>cotizaciones/add">Agregar Solicitud de Cotización</a>-->
    <br /><br />
    <?php echo "<h1 style='font-size:14px; color:green'><span id='busqueda' style='margin-left:700px'>Mensaje</span></h1>"; //my code is here ?>
 	<!-- Buscador -->
