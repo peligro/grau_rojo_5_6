@@ -55,6 +55,16 @@ class bobinas_model extends CI_Model{
       //  echo $this->db->last_query();exit;
         return $query->row(); 
     }
+    public function getBobinasPorNodo($id)
+    {
+        $query=$this->db
+        ->select("*")
+        ->from("bobinas")
+        ->where(array("id_nodo"=>$id))
+        ->get();
+      //  echo $this->db->last_query();exit;
+        return $query->result(); 
+    }
 	  public function getBobinasPorId2($id)
     {
         $query=$this->db

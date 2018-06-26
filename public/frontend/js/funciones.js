@@ -4186,6 +4186,7 @@ function validacion_gramaje_control_cartulina()
     }
 }
 
+
 function validacion_ancho_bobina_seleccionada_control_cartulina()
 {
     var ancho_seleccionado_de_bobina=document.form.ancho_seleccionado_de_bobina.value;
@@ -5625,6 +5626,74 @@ function control_cartulina_reiniciar_calculos_bobinas_cortes(gramaje)
             var formula=" ("+kilos+"/("+ancho+"*"+gramaje+")*1000000 ) ";
             var kilos_restantes=Math.round((metros_restantes*gramaje*1000)/1000000);
             document.getElementById('kilos_bobina_seleccionada_div').innerHTML="Total de metros ingresados (1 bobina) "+total_metros_cotizados+" . Total metros restantes: "+metros_restantes+" metros. Total pliegos restantes: "+pliegos_restantes+" pliegos . Kilos faltantes: "+kilos_restantes+" kilos. Basado en bob seleccionada: Gramaje Cotizado: "+gramaje+" grs, 1000 mm";
+            return false;
+        }
+        
+    }
+    
+}
+function control_cartulina_reiniciar_calculos_bobinas_cortes2(gramaje)
+{
+    var ancho_minimo_bobina= parseInt(document.form.ancho_minimo_bobina.value); 
+    var ancho_seleccionado_de_bobina=parseInt(document.form.ancho_seleccionado_de_bobina2.value);
+    if(document.form.kilos_bobina_seleccionada2.value=='0' || document.form.kilos_bobina_seleccionada.value2=='')
+    {
+        document.getElementById('kilos_bobina_seleccionada_div2').style.display='none';
+        return false;
+    }else
+    {
+        if (ancho_minimo_bobina>ancho_seleccionado_de_bobina)
+        {
+          document.getElementById('kilos_bobina_seleccionada_div2').style.display='block';
+          document.getElementById('kilos_bobina_seleccionada_div2').innerHTML="No es posible calcular porque el ancho seleccionado de bobina es menor al Ancho de la bobina cotizada";
+          return false;
+        }else
+        {
+            document.getElementById('kilos_bobina_seleccionada_div2').style.display='block';
+           
+            var kilos =document.form.kilos_bobina_seleccionada2.value;
+            var ancho=document.form.ancho_seleccionado_de_bobina2.value;
+            //var metros_restantes=((kilos/ancho*gramaje)*1000000) ;
+            var total_metros_cotizados=Math.round((kilos/(ancho*gramaje)*1000000 ));
+            var metros_restantes=document.form.total_metros_cotizados.value-total_metros_cotizados;
+            var pliegos_restantes=Math.round((metros_restantes/document.form.largo_a_cortar.value)*100);
+            var formula=" ("+kilos+"/("+ancho+"*"+gramaje+")*1000000 ) ";
+            var kilos_restantes=Math.round((metros_restantes*gramaje*1000)/1000000);
+            document.getElementById('kilos_bobina_seleccionada_div2').innerHTML="Total de metros ingresados (2 bobina) "+total_metros_cotizados+" . Total metros restantes: "+metros_restantes+" metros. Total pliegos restantes: "+pliegos_restantes+" pliegos . Kilos faltantes: "+kilos_restantes+" kilos. Basado en bob seleccionada: Gramaje Cotizado: "+gramaje+" grs, 1000 mm";
+            return false;
+        }
+        
+    }
+    
+}
+function control_cartulina_reiniciar_calculos_bobinas_cortes3(gramaje)
+{
+    var ancho_minimo_bobina= parseInt(document.form.ancho_minimo_bobina.value); 
+    var ancho_seleccionado_de_bobina=parseInt(document.form.ancho_seleccionado_de_bobina3.value);
+    if(document.form.kilos_bobina_seleccionada3.value=='0' || document.form.kilos_bobina_seleccionada.value2=='')
+    {
+        document.getElementById('kilos_bobina_seleccionada_div3').style.display='none';
+        return false;
+    }else
+    {
+        if (ancho_minimo_bobina>ancho_seleccionado_de_bobina)
+        {
+          document.getElementById('kilos_bobina_seleccionada_div3').style.display='block';
+          document.getElementById('kilos_bobina_seleccionada_div3').innerHTML="No es posible calcular porque el ancho seleccionado de bobina es menor al Ancho de la bobina cotizada";
+          return false;
+        }else
+        {
+            document.getElementById('kilos_bobina_seleccionada_div3').style.display='block';
+           
+            var kilos =document.form.kilos_bobina_seleccionada3.value;
+            var ancho=document.form.ancho_seleccionado_de_bobina3.value;
+            //var metros_restantes=((kilos/ancho*gramaje)*1000000) ;
+            var total_metros_cotizados=Math.round((kilos/(ancho*gramaje)*1000000 ));
+            var metros_restantes=document.form.total_metros_cotizados.value-total_metros_cotizados;
+            var pliegos_restantes=Math.round((metros_restantes/document.form.largo_a_cortar.value)*100);
+            var formula=" ("+kilos+"/("+ancho+"*"+gramaje+")*1000000 ) ";
+            var kilos_restantes=Math.round((metros_restantes*gramaje*1000)/1000000);
+            document.getElementById('kilos_bobina_seleccionada_div3').innerHTML="Total de metros ingresados (3 bobina) "+total_metros_cotizados+" . Total metros restantes: "+metros_restantes+" metros. Total pliegos restantes: "+pliegos_restantes+" pliegos . Kilos faltantes: "+kilos_restantes+" kilos. Basado en bob seleccionada: Gramaje Cotizado: "+gramaje+" grs, 1000 mm";
             return false;
         }
         

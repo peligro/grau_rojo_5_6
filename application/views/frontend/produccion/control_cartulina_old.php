@@ -323,7 +323,7 @@
    <div class="control-group">
 		<label class="control-label" for="usuario">Dimensionar a:</label>
 		<div class="controls">-->
-                    <in put type="hidden" name="dimensionar_a_ancho" style="width: 100px;" value="<?php echo $ing->tamano_a_imprimir_1;?>" placeholder="Ancho" readonly="true" /><!-- X --><input type="hidden" name="dimensionar_a_largo" style="width: 100px;" value="<?php echo $ing->tamano_a_imprimir_2; ?>" placeholder="Largo" readonly="true" />
+                    <input type="hidden" name="dimensionar_a_ancho" style="width: 100px;" value="<?php echo $ing->tamano_a_imprimir_1;?>" placeholder="Ancho" readonly="true" /><!-- X --><input type="hidden" name="dimensionar_a_largo" style="width: 100px;" value="<?php echo $ing->tamano_a_imprimir_2; ?>" placeholder="Largo" readonly="true" />
 		<!-- </div>
 	</div>-->
    

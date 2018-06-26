@@ -2369,7 +2369,7 @@ class Produccion extends CI_Controller {
             $ordenDeCompra=$this->cotizaciones_model->getOrdenDeCompraPorCotizacion($id);
             $orden=$this->orden_model->getOrdenesPorCotizacion($id);
             $bobinas=$this->bobinas_model->getBobinasPorId($id);
-            
+            $bobinasNodos=$this->bobinas_model->getBobinasPorNodo($id);
             
             /*materialidad*/
             $tapa = $this->materiales_model->getMaterialesPorNombre($fotomecanica->materialidad_1);
@@ -3102,8 +3102,8 @@ class Produccion extends CI_Controller {
                 )
             );            
             $usuarios=$this->usuarios_model->getUsuarios();
-            //print_r($control_cartulina);exit;
-            $this->layout->view("control_cartulina",compact('usuarios','datos','tipo','pagina','id','control_cartulina','ing','fotomecanica','hoja','fotomecanica2','orden','ordenDeCompra','tapa','monda','mliner','materialidad_1','materialidad_2','materialidad_3','bobinas','orden_de_trabajo')); 
+            //print_r($bobinasNodos);exit;
+            $this->layout->view("control_cartulina",compact('usuarios','datos','tipo','pagina','id','control_cartulina','ing','fotomecanica','hoja','fotomecanica2','orden','ordenDeCompra','tapa','monda','mliner','materialidad_1','materialidad_2','materialidad_3','bobinas','orden_de_trabajo','bobinasNodos')); 
         }else
         {
             redirect(base_url().'usuarios/login',  301);
