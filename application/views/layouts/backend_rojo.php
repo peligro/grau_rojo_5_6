@@ -27,7 +27,14 @@
          <?php echo $this->layout->js; ?> 
          <script type="text/javascript">var webroot = '<?php echo base_url(); ?>';</script>
         <script src="<?php echo base_url(); ?>public/frontend/js/funciones.js?estilo=<?php echo strtotime(date("Y-m-d H:i:s"));?>"></script>
-        
+            <?php
+                if($this->uri->segment('1')=='produccion' and $this->uri->segment('2')=='control_cartulina')
+                {
+                    ?>
+                    
+                    <?php
+                }
+            ?>
          <script src="<?php echo base_url(); ?>public/frontend/js/jquery.dataTables.min.js"></script>
     <script src="<?php echo base_url(); ?>public/frontend/js/dataTables.bootstrap.min.js"></script>
          
@@ -100,7 +107,7 @@
         			
                      Todos los derechos reservados a Empresas Grau <?php echo date("Y")?>
                     <br />
-                    Desarrollado por <a href="#" target="_blank" title="Web Master" style="color: #ffffff;text-decoration: none;">Web Master</a>
+                    Desarrollado por <a href="http://www.cesarcancino.com" target="_blank" title="Web Master" style="color: #ffffff;text-decoration: none;">Web Master</a>
                     
         		</div>
         	

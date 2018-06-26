@@ -1579,7 +1579,7 @@ class Produccion extends CI_Controller {
 	/**
      * Control Cartulina
      * */
-     public function control_cartulina($tipo=null,$id=null,$pagina=null,$orden_de_trabajo=null)
+     public function control_cartulina_old($tipo=null,$id=null,$pagina=null,$orden_de_trabajo=null)
 	{
         if($this->session->userdata('id'))
         {
@@ -2337,14 +2337,779 @@ class Produccion extends CI_Controller {
             );            
             $usuarios=$this->usuarios_model->getUsuarios();
             //print_r($control_cartulina);exit;
-            $this->layout->view("control_cartulina",compact('usuarios','datos','tipo','pagina','id','control_cartulina','ing','fotomecanica','hoja','fotomecanica2','orden','ordenDeCompra','tapa','monda','mliner','materialidad_1','materialidad_2','materialidad_3','bobinas','orden_de_trabajo')); 
+            $this->layout->view("control_cartulina_old",compact('usuarios','datos','tipo','pagina','id','control_cartulina','ing','fotomecanica','hoja','fotomecanica2','orden','ordenDeCompra','tapa','monda','mliner','materialidad_1','materialidad_2','materialidad_3','bobinas','orden_de_trabajo')); 
         }else
         {
             redirect(base_url().'usuarios/login',  301);
         }
         
 	}
+     public function control_cartulina($tipo=null,$id=null,$pagina=null,$orden_de_trabajo=null)
+    {
+        if($this->session->userdata('id'))
+        {
+          
+            if(!$tipo or !$id or !$orden_de_trabajo){show_404();}
+           switch($tipo)
+                    {
+                        case '1':
+                            $datos=$this->cotizaciones_model->getCotizacionPorId($id);
+                        break;
+                         case '2':
+                            $datos=$this->fast_track_model->getFastTrackPorId($id);
+                        break;
+                    }      
+            if(sizeof($datos)==0){show_404();}
+            $control_cartulina=$this->produccion_model->getControlCartulinaPorTipo($tipo,$id);
+            $cotizacion=$this->cotizaciones_model->getCotizacionPorId($id);
+            $ing=$this->cotizaciones_model->getCotizacionIngenieriaPorIdCotizacion($id);
+            $fotomecanica=$this->cotizaciones_model->getCotizacionFotomecanicaPorIdCotizacion($id);
+            $fotomecanica2=$this->produccion_model->getFotomecanicaPorTipo($tipo,$id);
+            $hoja=$this->cotizaciones_model->getHojaDeCostosPorIdCotizacion($id);
+            $ordenDeCompra=$this->cotizaciones_model->getOrdenDeCompraPorCotizacion($id);
+            $orden=$this->orden_model->getOrdenesPorCotizacion($id);
+            $bobinas=$this->bobinas_model->getBobinasPorId($id);
+            
+            
+            /*materialidad*/
+            $tapa = $this->materiales_model->getMaterialesPorNombre($fotomecanica->materialidad_1);
+            //print_r($tapa);exit;
+            $monda = $this->materiales_model->getMaterialesPorNombre($fotomecanica->materialidad_2);
+            $mliner = $this->materiales_model->getMaterialesPorNombre($fotomecanica->materialidad_3);            
+            $materialidad_1=$this->materiales_model->getMaterialesPorNombre($fotomecanica->materialidad_1);
+            $materialidad_2=$this->materiales_model->getMaterialesPorNombre($fotomecanica->materialidad_2);
+            $materialidad_3=$this->materiales_model->getMaterialesPorNombre($fotomecanica->materialidad_3); 
+            
+//            print_r($tapa);
+            
+            
+            if($this->input->post())
+            {
+                if($this->form_validation->run('control_cartulina'))
+                {
+                    $total_kilos_restantes_parcial_1    =$this->input->post('total_kilos_restantes'             ,true);
+                    $numero_de_bobina                   =$this->input->post('numero_de_bobina'                  ,true);
+                    $numero_de_bobina2                  =$this->input->post('numero_de_bobina2'                 ,true);
+                    $numero_de_bobina3                  =$this->input->post('numero_de_bobina3'                 ,true);
+                    $total_de_bobinas                   =$this->input->post('total_de_bobinas'                  ,true);
+                    $quien_sabe_ubicacion_de_la_bobina  =$this->input->post('quien_sabe_ubicacion_de_la_bobina' ,true);
+                    $menu_bobina_pliego                 =$this->input->post('menu_bobina_pliego'                ,true);
 
+                    $existencia                                    =$this->input->post('existencia'                                   ,true);
+                    $Proveedor_CompraTotal                         =$this->input->post('Proveedor_CompraTotal'                        ,true); 
+                    $MaterialComprado_CompraTotal                  =$this->input->post('MaterialComprado_CompraTotal'                 ,true); 
+                    $Ancho_CompraTotal                             =$this->input->post('Ancho_CompraTotal'                            ,true); 
+                    $Kilos_CompraTotal                             =$this->input->post('Kilos_CompraTotal'                            ,true); 
+                    $FechaEstimada_CompraTotal                     =$this->input->post('FechaEstimada_CompraTotal'                    ,true); 
+                    $FechaRecepcion_CompraTotal                    =$this->input->post('FechaRecepcion_CompraTotal'                   ,true); 
+                    $Opciones_StockParcial                         =$this->input->post('Opciones_StockParcial'                        ,true); 
+                    $KilosEnStock_ComprarSaldo_StockParcial        =$this->input->post('KilosEnStock_ComprarSaldo_StockParcial'       ,true);
+                    $Proveedor_ComprarSaldo_StockParcial           =$this->input->post('Proveedor_ComprarSaldo_StockParcial'          ,true); 
+                    $MaterialComprado_ComprarSaldo_StockParcial    =$this->input->post('MaterialComprado_ComprarSaldo_StockParcial'   ,true); 
+                    $Ancho_ComprarSaldo_StockParcial               =$this->input->post('Ancho_ComprarSaldo_StockParcial'              ,true); 
+                    $Kilos_ComprarSaldo_StockParcial               =$this->input->post('Kilos_ComprarSaldo_StockParcial'              ,true); 
+                    $FechaEstimada_ComprarSaldo_StockParcial       =$this->input->post('FechaEstimada_ComprarSaldo_StockParcial'      ,true); 
+                    $FechaRecepcion_ComprarSaldo_StockParcial      =$this->input->post('FechaRecepcion_ComprarSaldo_StockParcial'     ,true); 
+                    $Proveedor_ComprarParcial                      =$this->input->post('Proveedor_ComprarParcial'                     ,true); 
+                    $MaterialComprado_ComprarParcial               =$this->input->post('MaterialComprado_ComprarParcial'              ,true); 
+                    $Ancho_ComprarParcial                          =$this->input->post('Ancho_ComprarParcial'                         ,true); 
+                    $Kilos_ComprarParcial                          =$this->input->post('Kilos_ComprarParcial'                         ,true); 
+                    $FechaEstimada_ComprarParcial                  =$this->input->post('FechaEstimada_ComprarParcial'                 ,true); 
+                    $FechaRecepcion_ComprarParcial                 =$this->input->post('FechaRecepcion_ComprarParcial'                ,true); 
+                    $Opciones_ComprarParcial                       =$this->input->post('Opciones_ComprarParcial'                      ,true); 
+                    $Proveedor_ComprarSaldo_ComprarParcial         =$this->input->post('Proveedor_ComprarSaldo_ComprarParcial'        ,true); 
+                    $MaterialComprado_ComprarSaldo_ComprarParcial  =$this->input->post('MaterialComprado_ComprarSaldo_ComprarParcial' ,true); 
+                    $Ancho_ComprarSaldo_ComprarParcial             =$this->input->post('Ancho_ComprarSaldo_ComprarParcial'            ,true); 
+                    $Kilos_ComprarSaldo_ComprarParcial             =$this->input->post('Kilos_ComprarSaldo_ComprarParcial'            ,true); 
+                    $FechaEstimada_ComprarSaldo_ComprarParcial     =$this->input->post('FechaEstimada_ComprarSaldo_ComprarParcial'    ,true); 
+                    $FechaRecepcion_ComprarSaldo_ComprarParcial    =$this->input->post('FechaRecepcion_ComprarSaldo_ComprarParcial'   ,true);
+                    $kilos_bobina_seleccionada2                    =$this->input->post('kilos_bobina_seleccionada2'                   ,true);
+                    $kilos_bobina_seleccionada3                    =$this->input->post('kilos_bobina_seleccionada3'                   ,true); 
+                    $total_kilos_ingresados                        =$this->input->post('total_kilos_ingresados'                       ,true);
+                    $ancho_seleccionado_de_bobina2                 =$this->input->post('ancho_seleccionado_de_bobina2'                ,true);
+                    $ancho_seleccionado_de_bobina3                 =$this->input->post('ancho_seleccionado_de_bobina3'                ,true);
+                    $total_metros_ingresados                       =$this->input->post('total_metros_ingresados'                      ,true);
+                    $hay_que_bobinar                              =$this->input->post('hay_que_bobinar'                              ,true);
+
+                    if(sizeof($control_cartulina)==0)
+                   {
+                            $situacion='Pendiente';
+                            $fecha_pendiente=date('Y-m-d H:i:s');
+                            $fecha_liberada='0000-00-00';
+                            $fecha_activa='0000-00-00';
+                            $fecha_orden_cerrada='0000-00-00';
+                   }else
+                   {}
+                     switch($this->input->post('estado',true))
+                     {
+                        case '1':
+                            $situacion='Liberada';
+                            $fecha_pendiente='0000-00-00';
+                            $fecha_liberada=date('Y-m-d H:i:s');
+                            $fecha_activa='0000-00-00';
+                            $fecha_orden_cerrada='0000-00-00';
+                            $input_restante='';
+                        break;
+                        case '0':
+                            $situacion='Guardar';
+                            $fecha_pendiente='0000-00-00';
+                            $fecha_activa=date('Y-m-d H:i:s');
+                            $fecha_orden_cerrada='0000-00-00';
+                            $input_restante=$this->input->post('input_restante',true);
+                            $fecha_liberada='0000-00-00';
+                            $fecha_liberada_parcial_2 ='';
+                            $fecha_liberada_parcial_3 ='';
+
+                            $total_kilos_ingresados_parcial_2   ='';
+                            $total_kilos_restantes_parcial_2    ='';
+                            $total_metros_restantes_parcial_2   ='';
+
+                            $total_kilos_ingresados_parcial_3   ='';
+                            $total_kilos_restantes_parcial_3    ='';
+                            $total_metros_restantes_parcial_3   ='';
+                        break;
+                        case '2':
+                            $situacion='Activa';
+                            $fecha_pendiente='0000-00-00';
+                            $fecha_liberada='0000-00-00';
+                            $fecha_activa=date('Y-m-d H:i:s');
+                            $fecha_orden_cerrada='0000-00-00';
+                        break;
+                        case '3':
+                            $situacion='Parcial';
+                            $fecha_pendiente='0000-00-00';
+                            $fecha_liberada=date('Y-m-d H:i:s');
+                            $fecha_activa= '0000-00-00'; //date('Y-m-d H:i:s');
+                            $fecha_orden_cerrada='0000-00-00';
+                            $input_restante=$this->input->post('input_restante',true);
+
+                            if ($this->input->post('fecha_liberada_parcial_1',true)==null || $this->input->post('fecha_liberada_parcial_1',true)=='0000-00-00 00:00:00') {
+                                $fecha_liberada           =date('Y-m-d H:i:s');
+                                $fecha_liberada_parcial_2 ='';
+                                $fecha_liberada_parcial_3 ='';
+
+
+                                $total_kilos_ingresados_parcial_1   =$this->input->post('total_kilos_ingresados',true);
+                                $total_kilos_restantes_parcial_1    =$this->input->post('total_kilos_restantes',true);
+                                $total_metros_restantes_parcial_1   =$this->input->post('total_metros_restantes',true);
+                                
+                                $total_kilos_ingresados_parcial_2   ='';
+                                $total_kilos_restantes_parcial_2    ='';
+                                $total_metros_restantes_parcial_2   ='';
+
+                                $total_kilos_ingresados_parcial_3   ='';
+                                $total_kilos_restantes_parcial_3    ='';
+                                $total_metros_restantes_parcial_3   ='';
+
+                            }elseif ($this->input->post('fecha_liberada_parcial_2',true)==null || $this->input->post('fecha_liberada_parcial_2',true)=='0000-00-00 00:00:00') {
+                                $fecha_liberada           =$this->input->post('fecha_liberada_parcial_1',true);
+                                $fecha_liberada_parcial_2 =date('Y-m-d H:i:s');
+                                $fecha_liberada_parcial_3 ='';
+
+                                $total_kilos_ingresados_parcial_1   =$this->input->post('total_kilos_ingresados_parcial_1',true);
+                                $total_kilos_restantes_parcial_1    =$this->input->post('total_kilos_restantes_parcial_1',true);
+                                $total_metros_restantes_parcial_1   =$this->input->post('total_metros_restantes_parcial_1',true);
+                                
+                                $total_kilos_ingresados_parcial_2   =$this->input->post('total_kilos_ingresados',true);
+                                $total_kilos_restantes_parcial_2    =$this->input->post('total_kilos_restantes',true);
+                                $total_metros_restantes_parcial_2   =$this->input->post('total_metros_restantes',true);
+
+                                $total_kilos_ingresados_parcial_3   ='';
+                                $total_kilos_restantes_parcial_3    ='';
+                                $total_metros_restantes_parcial_3   ='';
+
+                            }else{
+                                $fecha_liberada           =$this->input->post('fecha_liberada_parcial_1',true);
+                                $fecha_liberada_parcial_2 =$this->input->post('fecha_liberada_parcial_2',true);
+                                $fecha_liberada_parcial_3 =date('Y-m-d H:i:s');
+
+                                $total_kilos_ingresados_parcial_1   =$this->input->post('total_kilos_ingresados_parcial_1',true);
+                                $total_kilos_restantes_parcial_1    =$this->input->post('total_kilos_restantes_parcial_1',true);
+                                $total_metros_restantes_parcial_1   =$this->input->post('total_metros_restantes_parcial_1',true);
+                                
+                                $total_kilos_ingresados_parcial_2   =$this->input->post('total_kilos_ingresados_parcial_2',true);
+                                $total_kilos_restantes_parcial_2    =$this->input->post('total_kilos_restantes_parcial_2',true);
+                                $total_metros_restantes_parcial_2   =$this->input->post('total_metros_restantes_parcial_2',true);
+
+                                $total_kilos_ingresados_parcial_3   =$this->input->post('total_kilos_ingresados',true);
+                                $total_kilos_restantes_parcial_3    =$this->input->post('total_kilos_restantes' ,true);
+                                $total_metros_restantes_parcial_3   =$this->input->post('total_metros_restantes',true);
+                            }
+                        break;
+                        case '4':
+                            $situacion='Reversar';
+                            $fecha_pendiente='0000-00-00';
+                            $fecha_liberada='0000-00-00';
+                            $fecha_activa= '0000-00-00';
+                            $fecha_orden_cerrada='0000-00-00';
+                            $input_restante='';
+                            $fecha_liberada           ='';
+                            $fecha_liberada_parcial_2 ='';
+                            $fecha_liberada_parcial_3 ='';
+
+                            $numero_de_bobina='';
+                            $numero_de_bobina2='';
+                            $numero_de_bobina3='';
+                            $total_de_bobinas='';
+                            $quien_sabe_ubicacion_de_la_bobina='';
+
+                            $total_kilos_ingresados_parcial_1   ='';
+                            $total_kilos_restantes_parcial_1    ='';
+                            $total_metros_restantes_parcial_1   ='';
+                            
+                            $total_kilos_ingresados_parcial_2   ='';
+                            $total_kilos_restantes_parcial_2    ='';
+                            $total_metros_restantes_parcial_2   ='';
+
+                            $total_kilos_ingresados_parcial_3   ='';
+                            $total_kilos_restantes_parcial_3    ='';
+                            $total_metros_restantes_parcial_3   ='';
+                            $total_kilos_ingresados             ='';
+                            $ancho_seleccionado_de_bobina2      ='';
+                            $ancho_seleccionado_de_bobina3      ='';
+                            $total_metros_ingresados            ='';
+                            $hay_que_bobinar                    ='';
+
+                            $kilos_bobina_seleccionada2                    ='';
+                            $kilos_bobina_seleccionada3                    ='';
+
+                            $existencia                                    ='';
+                            $Proveedor_CompraTotal                         ='';
+                            $MaterialComprado_CompraTotal                  ='';
+                            $Ancho_CompraTotal                             ='';
+                            $Kilos_CompraTotal                             ='';
+                            $FechaEstimada_CompraTotal                     ='';
+                            $FechaRecepcion_CompraTotal                    ='';
+                            $Opciones_StockParcial                         ='';
+                            $Proveedor_ComprarSaldo_StockParcial           ='';
+                            $KilosEnStock_ComprarSaldo_StockParcial        ='';
+                            $MaterialComprado_ComprarSaldo_StockParcial    ='';
+                            $Ancho_ComprarSaldo_StockParcial               ='';
+                            $Kilos_ComprarSaldo_StockParcial               ='';
+                            $FechaEstimada_ComprarSaldo_StockParcial       ='';
+                            $FechaRecepcion_ComprarSaldo_StockParcial      ='';
+                            $Proveedor_ComprarParcial                      ='';
+                            $MaterialComprado_ComprarParcial               ='';
+                            $Ancho_ComprarParcial                          ='';
+                            $Kilos_ComprarParcial                          ='';
+                            $FechaEstimada_ComprarParcial                  ='';
+                            $FechaRecepcion_ComprarParcial                 ='';
+                            $Opciones_ComprarParcial                       ='';
+                            $Proveedor_ComprarSaldo_ComprarParcial         ='';
+                            $MaterialComprado_ComprarSaldo_ComprarParcial  ='';
+                            $Ancho_ComprarSaldo_ComprarParcial             ='';
+                            $Kilos_ComprarSaldo_ComprarParcial             ='';
+                            $FechaEstimada_ComprarSaldo_ComprarParcial     ='';
+                            $FechaRecepcion_ComprarSaldo_ComprarParcial    ='';
+                            $menu_bobina_pliego                            ='';
+                        break;
+                     }                    
+
+
+                  // gramaje_seleccionado
+  
+                    if($this->input->post('gramaje',true) != $this->input->post('gramaje_seleccionado',true) or $ing->tamano_a_imprimir_1 != $this->input->post('ancho_seleccionado_de_bobina',true))
+                    {
+                            //$kilos1=$this->produccion_model->MermasParaProduccion($this->input->post('id',true),$this->input->post('gramaje_seleccionado',true),$this->input->post('ancho_seleccionado_de_bobina',true));
+                            $gramajeSeleccionado = $this->input->post('gramaje_seleccionado',true);
+                            $kilos11=$this->produccion_model->MermasParaProduccion($this->input->post('id',true),$this->input->post('gramaje_seleccionado',true),$this->input->post('ancho_seleccionado_de_bobina',true));
+                            $kilos1 = str_replace('.', '', $kilos11);
+                    }else{
+
+                            $kilos1 = $this->input->post('total_kilos',true);
+                            $gramajeSeleccionado = $this->input->post('gramaje',true);
+
+                    }
+                    $invert = explode("-",$this->input->post('fecha_estimada_recepcion',true));
+                    $fecha_estimada_recepcion = $invert[2]."-".$invert[1]."-".$invert[0]; 
+                     
+                    $invert2 = explode("-",$this->input->post('fecha_recepcionada',true));
+                    $fecha_recepcionada = $invert[2]."-".$invert[1]."-".$invert[0]; 
+
+                    //Resetea los valores dependiendo del valor del select "existencia"
+                    
+
+                    if ($existencia == 'Hay stock total') {
+
+                        $Proveedor_CompraTotal                         =''; 
+                        $MaterialComprado_CompraTotal                  =''; 
+                        $Ancho_CompraTotal                             =''; 
+                        $Kilos_CompraTotal                             =''; 
+                        $FechaEstimada_CompraTotal                     =''; 
+                        $FechaRecepcion_CompraTotal                    =''; 
+
+                        $Opciones_StockParcial                         =''; 
+                        $KilosEnStock_ComprarSaldo_StockParcial        ='';
+                        $Proveedor_ComprarSaldo_StockParcial           =''; 
+                        $MaterialComprado_ComprarSaldo_StockParcial    =''; 
+                        $Ancho_ComprarSaldo_StockParcial               =''; 
+                        $Kilos_ComprarSaldo_StockParcial               =''; 
+                        $FechaEstimada_ComprarSaldo_StockParcial       =''; 
+                        $FechaRecepcion_ComprarSaldo_StockParcial      =''; 
+
+                        $Proveedor_ComprarParcial                      =''; 
+                        $MaterialComprado_ComprarParcial               =''; 
+                        $Ancho_ComprarParcial                          =''; 
+                        $Kilos_ComprarParcial                          =''; 
+                        $FechaEstimada_ComprarParcial                  =''; 
+                        $FechaRecepcion_ComprarParcial                 =''; 
+                        $Opciones_ComprarParcial                       =''; 
+                        $Proveedor_ComprarSaldo_ComprarParcial         =''; 
+                        $MaterialComprado_ComprarSaldo_ComprarParcial  =''; 
+                        $Ancho_ComprarSaldo_ComprarParcial             =''; 
+                        $Kilos_ComprarSaldo_ComprarParcial             =''; 
+                        $FechaEstimada_ComprarSaldo_ComprarParcial     =''; 
+                        $FechaRecepcion_ComprarSaldo_ComprarParcial    =''; 
+
+                    } elseif ($existencia == 'Comprar Total') {
+
+                        $Opciones_StockParcial                         =''; 
+                        $Proveedor_ComprarSaldo_StockParcial           =''; 
+                        $KilosEnStock_ComprarSaldo_StockParcial        ='';
+                        $MaterialComprado_ComprarSaldo_StockParcial    =''; 
+                        $Ancho_ComprarSaldo_StockParcial               ='';
+                        $Kilos_ComprarSaldo_StockParcial               ='';  
+                        $FechaEstimada_ComprarSaldo_StockParcial       =''; 
+                        $FechaRecepcion_ComprarSaldo_StockParcial      =''; 
+
+                        $Proveedor_ComprarParcial                      =''; 
+                        $MaterialComprado_ComprarParcial               =''; 
+                        $Ancho_ComprarParcial                          =''; 
+                        $Kilos_ComprarParcial                          =''; 
+                        $FechaEstimada_ComprarParcial                  =''; 
+                        $FechaRecepcion_ComprarParcial                 =''; 
+                        $Opciones_ComprarParcial                       =''; 
+                        $Proveedor_ComprarSaldo_ComprarParcial         =''; 
+                        $MaterialComprado_ComprarSaldo_ComprarParcial  =''; 
+                        $Ancho_ComprarSaldo_ComprarParcial             =''; 
+                        $Kilos_ComprarSaldo_ComprarParcial             =''; 
+                        $FechaEstimada_ComprarSaldo_ComprarParcial     =''; 
+                        $FechaRecepcion_ComprarSaldo_ComprarParcial    ='';
+
+                    } elseif ($existencia == 'Stock Parcial') {
+
+                        $Proveedor_CompraTotal                         =''; 
+                        $MaterialComprado_CompraTotal                  =''; 
+                        $Ancho_CompraTotal                             ='';
+                        $Kilos_CompraTotal                             =''; 
+                        $FechaEstimada_CompraTotal                     =''; 
+                        $FechaRecepcion_CompraTotal                    ='';
+
+                        $Proveedor_ComprarParcial                      =''; 
+                        $MaterialComprado_ComprarParcial               =''; 
+                        $Ancho_ComprarParcial                          ='';
+                        $Kilos_ComprarParcial                          ='';  
+                        $FechaEstimada_ComprarParcial                  =''; 
+                        $FechaRecepcion_ComprarParcial                 =''; 
+                        $Opciones_ComprarParcial                       =''; 
+                        $Proveedor_ComprarSaldo_ComprarParcial         =''; 
+                        $MaterialComprado_ComprarSaldo_ComprarParcial  =''; 
+                        $Ancho_ComprarSaldo_ComprarParcial             ='';
+                        $Kilos_ComprarSaldo_ComprarParcial             ='';  
+                        $FechaEstimada_ComprarSaldo_ComprarParcial     =''; 
+                        $FechaRecepcion_ComprarSaldo_ComprarParcial    ='';
+
+                    } elseif ($existencia == 'Comprar Parcial') {
+
+                        $Proveedor_CompraTotal                         =''; 
+                        $MaterialComprado_CompraTotal                  =''; 
+                        $Ancho_CompraTotal                             =''; 
+                        $Kilos_CompraTotal                             =''; 
+                        $FechaEstimada_CompraTotal                     =''; 
+                        $FechaRecepcion_CompraTotal                    =''; 
+
+                        $Opciones_StockParcial                         =''; 
+                        $Proveedor_ComprarSaldo_StockParcial           =''; 
+                        $KilosEnStock_ComprarSaldo_StockParcial        ='';
+                        $MaterialComprado_ComprarSaldo_StockParcial    =''; 
+                        $Ancho_ComprarSaldo_StockParcial               =''; 
+                        $Kilos_ComprarSaldo_StockParcial               =''; 
+                        $FechaEstimada_ComprarSaldo_StockParcial       =''; 
+                        $FechaRecepcion_ComprarSaldo_StockParcial      =''; 
+                        
+                    }
+
+                    if ($Opciones_ComprarParcial=='Se produce parcial') {
+                        $Proveedor_ComprarSaldo_ComprarParcial         =''; 
+                        $MaterialComprado_ComprarSaldo_ComprarParcial  =''; 
+                        $Ancho_ComprarSaldo_ComprarParcial             ='';
+                        $Kilos_ComprarSaldo_ComprarParcial             ='';  
+                        $FechaEstimada_ComprarSaldo_ComprarParcial     =''; 
+                        $FechaRecepcion_ComprarSaldo_ComprarParcial    ='';
+                    }
+
+                    $data=array
+                    (
+                        "id_usuario"=>$this->session->userdata('id'),
+                        "tipo"=>$this->input->post('tipo',true),
+                        "id_nodo"=>$this->input->post('id',true),
+                        "id_cliente"=>$this->input->post('id_cliente',true),
+                        "orden_de_trabajo"=>$this->input->post('id',true),
+                        "descripcion_del_trabajo"=>$this->input->post('descripcion_del_trabajo_referencia',true),
+                        "dimensionar_a_ancho"=>$this->input->post('dimensionar_a_ancho',true),
+                        "dimensionar_a_largo"=>$this->input->post('dimensionar_a_largo',true),
+                        "ancho_de_bobina"=>$this->input->post('ancho_de_bobina',true),
+                        "gramaje"=>$gramajeSeleccionado,
+                        "total_pliegos"=>$this->input->post('total_pliegos',true),
+                        "total_kilos"=>$this->input->post('total_kilos',true),//$kilos1,
+                        "unidades_por_pliego"=>$this->input->post('unidades_por_pliego',true),
+                        "descripcion_de_la_tapa"=>$this->input->post('descripcion_de_la_tapa',true),
+                        "descripcion_de_la_tapa2"=>$this->input->post('descripcion_de_la_tapa2',true),
+                        "numero_de_bobina"=>$numero_de_bobina,
+                        "numero_de_bobina2"=>$numero_de_bobina2,
+                        "numero_de_bobina3"=>$numero_de_bobina3,
+                        "total_de_bobinas"=>$total_de_bobinas,
+                        "quien_sabe_ubicacion_de_la_bobina"=>$quien_sabe_ubicacion_de_la_bobina,
+                        "estado"=>$this->input->post('estado',true),
+                        "quien"=>$this->session->userdata('id'),
+                        "cuando"=>date("Y-m-d"),
+                        "glosa"=>$this->input->post('glosa',true),
+                        "hay_en_stock"=>$this->input->post('hay_en_stock',true),
+                        "preguntar_stock_a"=>$this->input->post('preguntar_stock_a',true),
+                        "stock_opciones"=>$this->input->post('stock_opciones',true),
+                        "proveedor"=>$this->input->post('proveedor',true),
+                        "fecha_estimada_recepcion"=>$fecha_estimada_recepcion,
+                        "gramaje_seleccionado"=>$this->input->post('gramaje_seleccionado',true),
+                        "ancho_seleccionado_de_bobina"=>$this->input->post('ancho_seleccionado_de_bobina',true),
+                        "cantidad_total_o_parcial"=>$this->input->post('cantidad_total_o_parcial',true),
+                        "situacion"=>$situacion,
+                        "fecha_pendiente"=>$fecha_pendiente,
+                        "fecha_liberada"=>$fecha_liberada,
+                        "fecha_activa"=>$fecha_activa,
+                        "fecha_orden_cerrada"=>$fecha_orden_cerrada,
+                        "hay_que_bobinar"=>$hay_que_bobinar,
+                        "total_kilos2"=>$this->input->post('total_kilos2',true),
+                        "bobinar_ancho_cartulina1"=>$this->input->post('bobinar_ancho_cartulina1',true),                        
+                        "bobinar_ancho_cartulina2"=>$this->input->post('bobinar_ancho_cartulina2',true),                        
+                        "bobinar_ancho_cartulina3"=>$this->input->post('bobinar_ancho_cartulina3',true),
+                        "kilos_bobina_seleccionada"=>$this->input->post('kilos_bobina_seleccionada',true),
+                        "total_metros"=>$this->input->post('total_metros',true),
+                        "kilos_orden_a_bobinar"=>$this->input->post('kilos_orden_a_bobinar',true),  
+                        "segunda_bobina_adicional_ancho"=>$this->input->post('segunda_bobina_adicional_ancho',true), 
+                        "segunda_bobina_adicional_kilos"=>$this->input->post('segunda_bobina_adicional_kilos',true), 
+                        "tercera_bobina_adicional_ancho"=>$this->input->post('tercera_bobina_adicional_ancho',true), 
+                        "tercera_bobina_adicional_kilos"=>$this->input->post('tercera_bobina_adicional_kilos',true), 
+                        "cuarta_bobina_adicional_ancho"=>$this->input->post('cuarta_bobina_adicional_ancho',true), 
+                        "cuarta_bobina_adicional_kilos"=>$this->input->post('cuarta_bobina_adicional_kilos',true), 
+                        "quien_compra"=>$this->input->post('quien_compra',true), 
+                        "recepcionados"=>$this->input->post('recepcionados',true), 
+                        "fecha_recepcionada"=>$fecha_recepcionada, 
+                        "segunda_bobinar"=>$this->input->post('segunda_bobinar',true), 
+                        "tercera_bobinar"=>$this->input->post('tercera_bobinar',true), 
+                        "cuarta_bobinar"=>$this->input->post('cuarta_bobinar',true), 
+
+                        //Raul Escalona
+                        "existencia"                                    =>$existencia,
+                        "Proveedor_CompraTotal"                         =>$Proveedor_CompraTotal,
+                        "MaterialComprado_CompraTotal"                  =>$MaterialComprado_CompraTotal,
+                        "Ancho_CompraTotal"                             =>$Ancho_CompraTotal,
+                        "Kilos_CompraTotal"                             =>$Kilos_CompraTotal,
+                        "FechaEstimada_CompraTotal"                     =>$FechaEstimada_CompraTotal,
+                        "FechaRecepcion_CompraTotal"                    =>$FechaRecepcion_CompraTotal,
+                        "Opciones_StockParcial"                         =>$Opciones_StockParcial,
+                        "KilosEnStock_ComprarSaldo_StockParcial"        =>$KilosEnStock_ComprarSaldo_StockParcial,
+                        "Proveedor_ComprarSaldo_StockParcial"           =>$Proveedor_ComprarSaldo_StockParcial,
+                        "MaterialComprado_ComprarSaldo_StockParcial"    =>$MaterialComprado_ComprarSaldo_StockParcial,
+                        "Ancho_ComprarSaldo_StockParcial"               =>$Ancho_ComprarSaldo_StockParcial,
+                        "Kilos_ComprarSaldo_StockParcial"               =>$Kilos_ComprarSaldo_StockParcial,
+                        "FechaEstimada_ComprarSaldo_StockParcial"       =>$FechaEstimada_ComprarSaldo_StockParcial,
+                        "FechaRecepcion_ComprarSaldo_StockParcial"      =>$FechaRecepcion_ComprarSaldo_StockParcial,
+                        "Proveedor_ComprarParcial"                      =>$Proveedor_ComprarParcial,
+                        "MaterialComprado_ComprarParcial"               =>$MaterialComprado_ComprarParcial,
+                        "Ancho_ComprarParcial"                          =>$Ancho_ComprarParcial,
+                        "Kilos_ComprarParcial"                          =>$Kilos_ComprarParcial,
+                        "FechaEstimada_ComprarParcial"                  =>$FechaEstimada_ComprarParcial,
+                        "FechaRecepcion_ComprarParcial"                 =>$FechaRecepcion_ComprarParcial,
+                        "Opciones_ComprarParcial"                       =>$Opciones_ComprarParcial,
+                        "Proveedor_ComprarSaldo_ComprarParcial"         =>$Proveedor_ComprarSaldo_ComprarParcial,
+                        "MaterialComprado_ComprarSaldo_ComprarParcial"  =>$MaterialComprado_ComprarSaldo_ComprarParcial, 
+                        "Ancho_ComprarSaldo_ComprarParcial"             =>$Ancho_ComprarSaldo_ComprarParcial,
+                        "Kilos_ComprarSaldo_ComprarParcial"             =>$Kilos_ComprarSaldo_ComprarParcial,
+                        "FechaEstimada_ComprarSaldo_ComprarParcial"     =>$FechaEstimada_ComprarSaldo_ComprarParcial,
+                        "FechaRecepcion_ComprarSaldo_ComprarParcial"    =>$FechaRecepcion_ComprarSaldo_ComprarParcial,
+                        
+                        "gramaje_seleccionado2"                         =>$this->input->post('gramaje_seleccionado2'                        ,true),
+                        "ancho_seleccionado_de_bobina2"                 =>$ancho_seleccionado_de_bobina2,
+                        "kilos_bobina_seleccionada2"                    =>$kilos_bobina_seleccionada2,
+                        "gramaje_seleccionado3"                         =>$this->input->post('gramaje_seleccionado3'                        ,true),
+                        "ancho_seleccionado_de_bobina3"                 =>$ancho_seleccionado_de_bobina3,
+                        "descripcion_de_la_tapa3"                       =>$this->input->post('descripcion_de_la_tapa3'                      ,true),
+                        "kilos_bobina_seleccionada3"                    =>$kilos_bobina_seleccionada3,
+                        "input_restante"                                =>$input_restante,
+                        "total_kilos_ingresados"                        =>$total_kilos_ingresados,
+                        //"total_kilos_restantes"                         =>$this->input->post('total_kilos_restantes'                      ,true),
+                        "fecha_liberada"                                =>$fecha_liberada,
+                        "fecha_liberada_parcial_2"                      =>$fecha_liberada_parcial_2,
+                        "fecha_liberada_parcial_3"                      =>$fecha_liberada_parcial_3,
+
+                        "total_kilos_ingresados"                        =>$total_kilos_ingresados_parcial_1,
+                        "total_kilos_restantes "                        =>$total_kilos_restantes_parcial_1,
+                        "total_metros_restantes"                        =>$total_metros_restantes_parcial_1,
+                        "total_kilos_ingresados_parcial_2"              =>$total_kilos_ingresados_parcial_2,
+                        "total_kilos_restantes_parcial_2 "              =>$total_kilos_restantes_parcial_2,
+                        "total_metros_restantes_parcial_2"              =>$total_metros_restantes_parcial_2,
+                        "total_kilos_ingresados_parcial_3"              =>$total_kilos_ingresados_parcial_3,
+                        "total_kilos_restantes_parcial_3 "              =>$total_kilos_restantes_parcial_3,
+                        "total_metros_restantes_parcial_3"              =>$total_metros_restantes_parcial_3,
+                        "menu_bobina_pliego"                            =>$menu_bobina_pliego,
+                        "total_metros_ingresados"                       =>$total_metros_ingresados
+                        );
+                    //print_r($_POST);exit;
+                    $bobina = array(
+                        "id_nodo"=>$this->input->post('id',true),
+                        //"descripcion"=>$this->input->post('descripcion_de_la_tapa2',true),
+                        "gramaje"=>$this->input->post('gramaje_seleccionado',true),
+                        "kilos"=>$this->input->post('kilos_bobina_seleccionada',true),
+                        "ancho"=>$this->input->post('ancho_seleccionado_de_bobina',true),
+                    );
+                    $bobina1 = array(
+                        "id_nodo"=>$this->input->post('id',true),
+                        //"descripcion"=>$this->input->post('descripcion_de_la_tapa2',true),
+                        "gramaje"=>$this->input->post('gramaje_seleccionado',true),
+                        "kilos"=>$this->input->post('kilos_bobina_seleccionada',true),
+                        "ancho"=>$this->input->post('ancho_seleccionado_de_bobina',true),
+                        'hay_que_bobinar'=>$this->input->post('hay_que_bobinar',true),
+                    );
+                    $bobina2 = array(
+                        "id_nodo"=>$this->input->post('id',true),
+                        //"descripcion"=>$this->input->post('descripcion_de_la_tapa2',true),
+                        "gramaje"=>$this->input->post('gramaje_seleccionado2',true),
+                        "kilos"=>$this->input->post('kilos_bobina_seleccionada2',true),
+                        "ancho"=>$this->input->post('ancho_seleccionado_de_bobina2',true),
+                        'hay_que_bobinar'=>$this->input->post('hay_que_bobinar2',true),
+                    );
+                    $bobina3 = array(
+                        "id_nodo"=>$this->input->post('id',true),
+                        //"descripcion"=>$this->input->post('descripcion_de_la_tapa2',true),
+                        "gramaje"=>$this->input->post('gramaje_seleccionado3',true),
+                        "kilos"=>$this->input->post('kilos_bobina_seleccionada3',true),
+                        "ancho"=>$this->input->post('ancho_seleccionado_de_bobina3',true),
+                        'hay_que_bobinar'=>$this->input->post('hay_que_bobinar3',true),
+                    );
+                    $this->bobinas_model->delete($id);
+                    $this->bobinas_model->insertar($bobina1);
+                    $this->bobinas_model->insertar($bobina2);
+                    $this->bobinas_model->insertar($bobina3);
+                    //exit(print_r($bobina));exit();
+                    /*
+                    if(sizeof($bobinas)==0)
+                    {
+                        $this->db->insert("bobinas",$bobina);
+                    }else{
+                        $this->db->update('bobinas', $bobina, array('id_nodo'=>$this->input->post('id',true)));
+                    } 
+                    */
+                    
+                    if(sizeof($control_cartulina)==0)
+                    {
+                        $this->db->insert("produccion_control_cartulina",$data);   
+                    }else
+                    {
+                        $this->db->update('produccion_control_cartulina', $data, array('tipo' => $this->input->post('tipo',true),'id_nodo'=>$this->input->post('id',true)));
+                    }    
+                    $kilosCartulinaParcial=$this->produccion_model->MermasParaProduccion($this->input->post('id',true),$this->input->post('gramaje_seleccionado',true),$this->input->post('ancho_seleccionado_de_bobina',true));
+                    
+                    $invert = explode("-",$this->input->post('fecha_estimada_recepcion',true));
+                    $fecha_estimada_recepcion = $invert[2]."-".$invert[1]."-".$invert[0]; 
+                    $invert2 = explode("-",$this->input->post('fecha_recepcionada',true));
+                    $fecha_recepcionada = $invert[2]."-".$invert[1]."-".$invert[0]; 
+                    
+                    $data2=array
+                    (              
+                        "id_usuario"=>$this->session->userdata('id'),
+                        "tipo"=>$this->input->post('tipo',true),
+                        "id_nodo"=>$this->input->post('id',true),
+                        "id_cliente"=>$this->input->post('id_cliente',true),
+                        "orden_de_trabajo"=>$this->input->post('id',true),
+                        "descripcion_del_trabajo"=>$this->input->post('descripcion_del_trabajo_referencia',true),
+                        "dimensionar_a_ancho"=>$this->input->post('dimensionar_a_ancho',true),
+                        "dimensionar_a_largo"=>$this->input->post('dimensionar_a_largo',true),
+                        "ancho_de_bobina"=>$this->input->post('ancho_de_bobina',true),
+                        "gramaje"=>$gramajeSeleccionado,
+                        "total_pliegos"=>$this->input->post('total_pliegos',true),
+                        "total_kilos"=>$kilos1,
+                        "unidades_por_pliego"=>$this->input->post('unidades_por_pliego',true),
+                        "descripcion_de_la_tapa"=>$this->input->post('descripcion_de_la_tapa',true),
+                        //"descripcion_de_la_tapa2"=>$this->input->post('descripcion_de_la_tapa2',true),
+                        "numero_de_bobina"=>$this->input->post('numero_de_bobina',true),
+                        //"numero_de_bobina2"=>$this->input->post('numero_de_bobina2',true),
+                        "total_de_bobinas"=>$this->input->post('total_de_bobinas',true),
+                        "quien_sabe_ubicacion_de_la_bobina"=>$this->input->post('quien_sabe_ubicacion_de_la_bobina',true),
+                        "estado"=>$this->input->post('estado',true),
+                        "quien"=>$this->session->userdata('id'),
+                        "cuando"=>date("Y-m-d"),
+                        "glosa"=>$this->input->post('glosa',true),
+                        "hay_en_stock"=>$this->input->post('hay_en_stock',true),
+                        "preguntar_stock_a"=>$this->input->post('preguntar_stock_a',true),
+                        "stock_opciones"=>$this->input->post('stock_opciones',true),
+                        "proveedor"=>$this->input->post('proveedor',true),
+                        "fecha_estimada_recepcion"=>$fecha_estimada_recepcion,
+                        "gramaje_seleccionado"=>$this->input->post('gramaje_seleccionado',true),
+                        "ancho_seleccionado_de_bobina"=>$this->input->post('ancho_seleccionado_de_bobina',true),
+                        "cantidad_total_o_parcial"=>$this->input->post('cantidad_total_o_parcial',true),
+                        "situacion"=>$situacion,
+                        "fecha_pendiente"=>$fecha_pendiente,
+                        "fecha_liberada"=>$fecha_liberada,
+                        "fecha_activa"=>$fecha_activa,
+                        "fecha_orden_cerrada"=>$fecha_orden_cerrada,
+                        "hay_que_bobinar"=>$this->input->post('hay_que_bobinar',true),               
+                        "total_kilos2"=>$this->input->post('total_kilos2',true),     
+                        //"bobinar_ancho_cartulina1"=>$this->input->post('bobinar_ancho_cartulina1',true),                        
+                        //"bobinar_ancho_cartulina2"=>$this->input->post('bobinar_ancho_cartulina2',true),                        
+                        //"bobinar_ancho_cartulina3"=>$this->input->post('bobinar_ancho_cartulina3',true),      
+                        //"kilos_bobina_seleccionada"=>$this->input->post('kilos_bobina_seleccionada',true),
+                        //"total_metros"=>$this->input->post('total_metros',true), 
+                        //"kilos_bobina_seleccionada"=>$this->input->post('kilos_bobina_seleccionada',true),                         
+                        //"quien_compra"=>$this->input->post('quien_compra',true),
+                        //"recepcionados"=>$this->input->post('recepcionados',true), 
+                        //"fecha_recepcionada"=>$fecha_recepcionada,
+                        //"segunda_bobinar"=>$this->input->post('segunda_bobinar',true), 
+                        //"tercera_bobinar"=>$this->input->post('tercera_bobinar',true), 
+                        //"cuarta_bobinar"=>$this->input->post('cuarta_bobinar',true), 
+                    );
+                    
+                    $bobina = array(
+                        "id_nodo"=>$this->input->post('id',true),
+                        "descripcion"=>$this->input->post('descripcion_de_la_tapa2',true),
+                        "gramaje"=>$this->input->post('gramaje_seleccionado2',true),
+                        "kilos"=>$this->input->post('kilos_bobina_seleccionada2',true),
+                        "ancho"=>$this->input->post('ancho_seleccionado_de_bobina2',true),
+                    );
+                    
+                    
+                    //exit(print_r($bobina));exit();
+//                    exit(print_r($data));                 
+                    //Parcial 
+                                        if($this->input->post('estado',true) == '3')
+                                        {
+                                            $this->db->insert("produccion_control_cartulina_parcial",$data2);
+                                        }
+                    //Parcial Fin
+                    //Liberar + Total
+                    $hayparcial=$this->produccion_model->getParcialControlCartulina($this->input->post('id',true));
+                    if($this->input->post('total_o_parcial',true) == 'Total' and $hayparcial->sum > 0)
+                    {
+                            //$hayparcial=$this->produccion_model->getParcialControlCartulina($this->input->post('id',true));
+                            $pendiente = $this->input->post('total_kilos',true) - $hayparcial->sum;
+                            $data1=array
+                            (                               
+                                                            "estado"=>1,
+                                                            "situacion"=>'Liberada',
+                                                            "fecha_liberada"=>date('Y-m-d H:i:s'),  
+                                                            "fecha_pendiente"=>'0000-00-00',
+                                                            "fecha_activa"=>'0000-00-00',
+                                                            "fecha_orden_cerrada"=>'0000-00-00',    
+                            );
+                            
+                        $this->db->update('produccion_control_cartulina', $data1, array('tipo' => $this->input->post('tipo',true),'id_nodo'=>$this->input->post('id',true)));
+                        $this->db->update('bobinas', $bobinas, array('id_nodo'=>$this->input->post('id',true)));
+                        /*$data3=array
+                            (                               
+                                    "id_usuario"=>$this->session->userdata('id'),
+                                    "tipo"=>$this->input->post('tipo',true),
+                                    "id_nodo"=>$this->input->post('id',true),
+                                    "id_cliente"=>$this->input->post('id_cliente',true),
+                                    "orden_de_trabajo"=>$this->input->post('id',true),
+                                    "descripcion_del_trabajo"=>$this->input->post('descripcion_del_trabajo',true),
+                                    "dimensionar_a_ancho"=>$this->input->post('dimensionar_a_ancho',true),
+                                    "dimensionar_a_largo"=>$this->input->post('dimensionar_a_largo',true),
+                                    "ancho_de_bobina"=>$this->input->post('ancho_de_bobina',true),
+                                    "gramaje"=>$gramajeSeleccionado,
+                                    "total_pliegos"=>$this->input->post('total_pliegos',true),
+                                    "total_kilos"=>$this->input->post('total_kilos',true),
+                                    "unidades_por_pliego"=>$this->input->post('unidades_por_pliego',true),
+                                    "descripcion_de_la_tapa"=>$this->input->post('descripcion_de_la_tapa',true),
+                                    "numero_de_bobina"=>$this->input->post('numero_de_bobina',true),
+                                    "total_de_bobinas"=>$this->input->post('total_de_bobinas',true),
+                                    "quien_sabe_ubicacion_de_la_bobina"=>$this->input->post('quien_sabe_ubicacion_de_la_bobina',true),
+                                    "estado"=>3,
+                                    "quien"=>$this->session->userdata('id'),
+                                    "cuando"=>date("Y-m-d"),
+                                    "glosa"=>$this->input->post('glosa',true),
+                                    "hay_en_stock"=>$this->input->post('hay_en_stock',true),
+                                    "preguntar_stock_a"=>$this->input->post('preguntar_stock_a',true),
+                                    "stock_opciones"=>$this->input->post('stock_opciones',true),
+                                    "proveedor"=>$this->input->post('proveedor',true),
+                                    "fecha_estimada_recepcion"=>$this->input->post('fecha_estimada_recepcion',true),
+                                    "gramaje_seleccionado"=>$this->input->post('gramaje_seleccionado',true),
+                                    "ancho_seleccionado_de_bobina"=>$this->input->post('ancho_seleccionado_de_bobina',true),
+                                    "cantidad_total_o_parcial"=>$this->input->post('cantidad_total_o_parcial',true),
+                                    "situacion"=>'Parcial',
+                                    "fecha_pendiente"=>$fecha_pendiente,
+                                    "fecha_liberada"=>$fecha_liberada,
+                                    "fecha_activa"=>$fecha_activa,
+                                    "fecha_orden_cerrada"=>$fecha_orden_cerrada,
+                                    "hay_que_bobinar"=>$this->input->post('hay_que_bobinar',true),               
+                                    "total_kilos2"=>$pendiente,  
+                            );
+                        */
+                          // $this->db->insert("produccion_control_cartulina_parcial",$data3);
+                           
+                           
+                                                $data4=array
+                                                     (                              
+                                                        "estado"=>1,
+                                                        "situacion"=>'Liberada',
+                                                        "fecha_liberada"=>date('Y-m-d H:i:s'),  
+                                                        "fecha_pendiente"=>'0000-00-00',
+                                                        "fecha_activa"=>'0000-00-00',
+                                                        "fecha_orden_cerrada"=>'0000-00-00',
+                                                     );
+                        $this->db->update('produccion_control_cartulina_parcial', $data4, array('tipo' => $this->input->post('tipo',true),'id_nodo'=>$this->input->post('id',true)));
+                    
+                    }                   
+                    //Liberra Total fin
+                    
+                    
+                    switch($tipo)
+                    {
+                        case '1':
+                            $this->session->set_flashdata('ControllerMessage', 'Se ha guardado el registro exitosamente.');                             
+                            redirect(base_url().'produccion/control_cartulina/'.$tipo.'/'.$this->input->post('id').'/'.$pagina.'/'.$this->input->post('orden_de_trabajo'),  301);
+                            //redirect(base_url().'produccion/cotizaciones/'.$this->input->post('pagina',true),  301);
+                        break;
+                         case '2':
+                            $this->session->set_flashdata('ControllerMessage', 'Se ha guardado el registro exitosamente.');                             
+                            redirect(base_url().'produccion/fast/'.$this->input->post('pagina',true),  301);
+                            //redirect(base_url().'produccion/fast/'.$this->input->post('pagina',true),  301);
+                        break;
+                    }   
+                }
+            }
+            $this->layout->css
+            (
+                array
+                (
+                    base_url()."public/backend/css/calendario.css",
+                    base_url()."public/backend/fancybox/jquery.fancybox.css",
+                    base_url()."public/frontend/css/prism.css",
+                    base_url()."public/frontend/css/chosen.css",
+                )
+            );        
+            $this->layout->js
+            (
+                array
+                (
+                    base_url()."public/backend/js/calendar.js",
+                    base_url()."public/backend/js/calendar-setup.js",
+                    base_url()."public/backend/js/calendar-es.js",
+                    base_url().'public/backend/js/tiny_mce/tiny_mce.js',
+                    base_url()."public/frontend/js/dar_formato.js",
+                    base_url()."public/backend/js/bootstrap.file-input.js",                    
+                    base_url()."public/backend/fancybox/jquery.fancybox.js",
+                    base_url()."public/frontend/js/chosen.jquery.js",
+                    base_url()."public/frontend/js/prism.js",
+                )
+            );            
+            $usuarios=$this->usuarios_model->getUsuarios();
+            //print_r($control_cartulina);exit;
+            $this->layout->view("control_cartulina",compact('usuarios','datos','tipo','pagina','id','control_cartulina','ing','fotomecanica','hoja','fotomecanica2','orden','ordenDeCompra','tapa','monda','mliner','materialidad_1','materialidad_2','materialidad_3','bobinas','orden_de_trabajo')); 
+        }else
+        {
+            redirect(base_url().'usuarios/login',  301);
+        }
+        
+    }
     /**
      * Bobinado cartulina
      * */

@@ -3590,11 +3590,12 @@ function validar_ancho_bobina_seleccionada(quehago)
     
     //alert(document.form.ancho_seleccionado_de_bobina.value+")\nancho bobina seleccionado2="+ancho_bobina_seleccionada2);return false;
     //var ancho_bobina_seleccionada2=document.form.ancho_de_bobina.value;
-    
+    document.getElementById('kilos_bobina_seleccionada_div').style.display='none';
    if (ancho_minimo_bobina>ancho_seleccionado_de_bobina)
    //if (document.form.ancho_seleccionado_de_bobina.value>ancho_bobina_seleccionada2)  
     {
       alert("No puedes ingresar un valor menor al Ancho de la bobina cotizada ");
+
       return false; 
       //alert("No puedes ingresar un valor menor al Ancho de la bobina cotizada (ancho bobina: ("+ancho_minimo_bobina+")\nancho bobina seleccionado2="+ancho_seleccionado_de_bobina);
     } 
@@ -5518,4 +5519,115 @@ function cambioreserva(x){
          $("#ing_cala_caucho").hide(500);
      }
 
+}
+/*
+#############FUNCIONES DE CÉSAR CANCINO A CONTAR DEL 25-06-2018
+*/
+function control_cartulina_menus(id)
+{
+  if(id=='0')
+  {
+      document.getElementById('menu_bobina').style.display='none';
+      document.getElementById('menu_pliegos').style.display='none';
+            return false;
+  }else
+  {
+      switch(id)
+      {
+          case '1':
+            document.getElementById('menu_bobina').style.display='block';
+            document.getElementById('menu_pliegos').style.display='none';
+            return false;
+          break;
+          case '2':
+            document.getElementById('menu_bobina').style.display='none';
+            document.getElementById('menu_pliegos').style.display='block';
+            return false;
+          break;
+      }
+  } 
+}
+function control_cartulina_menus_existencias(id)
+{
+  if(id=='0')
+  {
+      document.getElementById('hay_stock_total').style.display='none';
+      document.getElementById('comprar_total').style.display='none';
+      document.getElementById('stock_parcial').style.display='none';
+      document.getElementById('comprar_parcial').style.display='none';
+      document.getElementById('bobinas').style.display='none';
+      return false;
+  }else
+  {
+    switch(id)
+      {
+          case '1':
+            document.getElementById('hay_stock_total').style.display='block';
+            document.getElementById('comprar_total').style.display='none';
+            document.getElementById('stock_parcial').style.display='none';
+            document.getElementById('comprar_parcial').style.display='none';
+            document.getElementById('bobinas').style.display='block';
+            return false;
+          break;
+          case '2':
+            document.getElementById('hay_stock_total').style.display='none';
+            document.getElementById('comprar_total').style.display='block';
+            document.getElementById('stock_parcial').style.display='none';
+            document.getElementById('comprar_parcial').style.display='none';
+            document.getElementById('bobinas').style.display='none';
+            return false;
+          break;
+          case '3':
+            document.getElementById('hay_stock_total').style.display='none';
+            document.getElementById('comprar_total').style.display='none';
+            document.getElementById('stock_parcial').style.display='block';
+            document.getElementById('comprar_parcial').style.display='none';
+            document.getElementById('bobinas').style.display='none';
+            return false;
+          break;
+          case '4':
+            document.getElementById('hay_stock_total').style.display='block';
+            document.getElementById('comprar_total').style.display='none';
+            document.getElementById('stock_parcial').style.display='none';
+            document.getElementById('comprar_parcial').style.display='block';
+            document.getElementById('bobinas').style.display='none';
+            return false;
+          break;
+          
+      }
+  }
+}
+function control_cartulina_reiniciar_calculos_bobinas_cortes(gramaje)
+{
+    var ancho_minimo_bobina= parseInt(document.form.ancho_minimo_bobina.value); 
+    var ancho_seleccionado_de_bobina=parseInt(document.form.ancho_seleccionado_de_bobina.value);
+    if(document.form.kilos_bobina_seleccionada.value=='0' || document.form.kilos_bobina_seleccionada.value=='')
+    {
+        document.getElementById('kilos_bobina_seleccionada_div').style.display='none';
+        return false;
+    }else
+    {
+        if (ancho_minimo_bobina>ancho_seleccionado_de_bobina)
+        {
+          document.getElementById('kilos_bobina_seleccionada_div').style.display='block';
+          document.getElementById('kilos_bobina_seleccionada_div').innerHTML="No es posible calcular porque el ancho seleccionado de bobina es menor al Ancho de la bobina cotizada";
+          return false;
+        }else
+        {
+            document.getElementById('kilos_bobina_seleccionada_div').style.display='block';
+           
+            var kilos =document.form.kilos_bobina_seleccionada.value;
+            var ancho=document.form.ancho_seleccionado_de_bobina.value;
+            //var metros_restantes=((kilos/ancho*gramaje)*1000000) ;
+            var total_metros_cotizados=Math.round((kilos/(ancho*gramaje)*1000000 ));
+            var metros_restantes=document.form.total_metros_cotizados.value-total_metros_cotizados;
+            var pliegos_restantes=Math.round((metros_restantes/document.form.largo_a_cortar.value)*100);
+            var formula=" ("+kilos+"/("+ancho+"*"+gramaje+")*1000000 ) ";
+            var kilos_restantes=Math.round((metros_restantes*gramaje*1000)/1000000);
+            document.getElementById('kilos_bobina_seleccionada_div').innerHTML="Total de metros ingresados (1 bobina) "+total_metros_cotizados+" . Total metros restantes: "+metros_restantes+" metros. Total pliegos restantes: "+pliegos_restantes+" pliegos . Kilos faltantes: "+kilos_restantes+" kilos. Basado en bob seleccionada: Gramaje Cotizado: "+gramaje+" grs, 1000 mm";
+            return false;
+        }
+        
+    }
+    
 }
