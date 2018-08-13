@@ -1,4 +1,7 @@
 <?php $this->layout->element('admin_mensaje_validacion'); ?>
+<?php
+$tapa_gramaje=$tapa->gramaje;
+?>
 <div id="contenidos">
 <?php echo form_open(null, array('class' => 'form-horizontal','name'=>'form','id'=>'form')); ?>
   <!-- Migas -->
@@ -111,6 +114,7 @@
                                                 <li>Situación : <strong>Liberada el <?php echo fecha_con_hora($control_cartulina->fecha_liberada);?></strong></li>
                                                 <?php
                                             break;
+
                                             case 'Activa':
                                                 ?>
                                                 <li>Situación : <strong>Activa el <?php echo fecha_con_hora($control_cartulina->fecha_activa);?></strong></li>
@@ -125,7 +129,42 @@
                                   } ?>
                                   <li>Fecha de liberacion Fotomecánica : <strong><?php echo $fecha_liberada_foto; ?></strong></li>
                                   <?php
-                                  if($control_cartulina->estado=='1')
+                                  if(sizeof($control_cartulina)>=1)
+                                  {
+                                    ?>
+        <li>Fecha Guardado Control Cartulina : <strong><?php echo fecha($control_cartulina->cuando); ?></strong></li>
+        <?php
+        if($control_cartulina->existencia=='2')
+        {
+          ?>
+        <li>Mercadería comprada <strong><?php echo fecha($control_cartulina->FechaEstimada_CompraTotal);?></strong>
+          <br/> 
+          <?php
+          if($control_cartulina->FechaRecepcion_CompraTotal!='0000-00-00')
+          {
+              ?>
+              Fecha estimada de recepción <strong><?php echo fecha($control_cartulina->FechaRecepcion_CompraTotal);?></strong> <br /> 
+              <?php
+          }
+          ?>
+          
+          Comprada al proveedor <strong><?php $proveedorCesar=$this->proveedores_model->getProveedoresPorId($control_cartulina->Proveedor_CompraTotal);echo $proveedorCesar->nombre?></strong>
+          <br />
+          <?php
+          $tapaCompraTotal=$this->materiales_model->getMaterialesReversoPorId($control_cartulina->MaterialComprado_CompraTotal);
+          ?>
+        Comprada <?php echo $tapaCompraTotal->gramaje?>(<?php echo $tapaCompraTotal->tipomaterial?>). Total kilos <strong><?php echo $control_cartulina->Kilos_CompraTotal?></strong> ancho por llegar <strong><?php echo $control_cartulina->Ancho_CompraTotal?></strong>
+        </li>
+          <?php
+        }
+        ?>
+        
+                                    <?php
+                                  }
+                                  ?>         
+                                   
+                                  <?php
+                                  if($control_cartulina->estado=='3')
                                   {
                                       ?>
                                     <li>Fecha de liberacion Control cartunina : <strong><?php echo fecha($control_cartulina->fecha_liberada); ?></strong></li>
@@ -199,7 +238,7 @@
 
                      <li>CCAC1 : <strong><?php echo number_format((($ing->tamano_a_imprimir_1-$ing->tamano_cuchillo_1)*10),1,',','.');?> Mms</strong></li>
                      <li>CCAC2 : <strong><?php echo number_format((($ing->tamano_a_imprimir_2-$ing->tamano_cuchillo_2)*10),1,',','.') ?> Mms</strong></li>
-                     <li>Ancho mínimo cartulina : <strong><?php echo number_format($ing->tamano_cuchillo_1+2,1,',','.');?> (<?php echo ($ing->tamano_cuchillo_1+2)*10?> milímetros)</strong></li>                   
+                     <li>Ancho mínimo cartulina : <strong><?php echo number_format($ing->tamano_cuchillo_1+1,1,',','.');?> (<?php echo ($ing->tamano_cuchillo_1+1)*10?> milímetros)</strong></li>                   
                 </ul>
 </div>
 </div>
@@ -276,14 +315,14 @@
       <div class="controls">
         <select name="menu_bobina_pliego" id="menu_bobina_pliego" <?php echo set_value_select($control_cartulina,'menu_bobina_pliego',$control_cartulina->menu_bobina_pliego,$control_cartulina->menu_bobina_pliego)?> onchange="control_cartulina_menus(this.value);">
           <option value="0">Seleccione</option>
-          <option value="1" <?php if($control_cartulina->menu_bobina_pliego=="Menu Bobina"){echo "selected";} ?>>Menu Bobina</option>
-          <option value="2" <?php if($control_cartulina->menu_bobina_pliego=="Menu Pliego"){echo "selected";} ?>>Menu Pliego</option>
+          <option value="1" <?php if($control_cartulina->menu_bobina_pliego=="1"){echo "selected='selected'";} ?>>Menu Bobina</option>
+          <option value="2" <?php if($control_cartulina->menu_bobina_pliego=="2"){echo "selected='selected'";} ?>>Menu Pliego</option>
         </select>
       </div>
     </div>
 
 <!--menú bobina-->
-<div id="menu_bobina" style="display: none;">
+<div id="menu_bobina" style="display: <?php if(sizeof($control_cartulina)==0){echo 'none';}else{echo 'block';}?>;">
   <!--INICIO - EXISTENCIA-->
     <h3>Existencia</h3>
     <div class="control-group">
@@ -291,16 +330,47 @@
       <div class="controls">
           <select name="existencia" id="existencia" <?php echo set_value_select($control_cartulina,'existencia',$control_cartulina->existencia,$control_cartulina->existencia)?> onchange="control_cartulina_menus_existencias(this.value);">
             <option value="0">Seleccione...</option>
-            <option value="1" <?php if($control_cartulina->existencia=="Hay stock total"){echo "selected";} ?> >Hay stock total</option>
-            <option value="2" <?php echo set_value_select($control_cartulina,'existencia',$control_cartulina->existencia  ,'Comprar Total');?>>Comprar total</option>
-            <option value="3"  <?php echo set_value_select($control_cartulina,'existencia',$control_cartulina->existencia  ,'Stock Parcial');?>>Hay stock parcial</option>
-            <option value="4" <?php echo set_value_select($control_cartulina,'existencia',$control_cartulina->existencia  ,'Comprar Parcial');?>>Comprar Parcial</option>
+            <option value="1" <?php if($control_cartulina->existencia=="1"){echo "selected";} ?>>Hay stock total</option>
+            <option value="2" <?php if($control_cartulina->existencia=="2"){echo "selected";} ?>>Comprar total</option>
+            <option value="3" <?php if($control_cartulina->existencia=="3"){echo "selected";} ?>>Hay stock parcial</option>
+            <option value="4" <?php if($control_cartulina->existencia=="4"){echo "selected";} ?>>Comprar Parcial</option>
         </select>
       </div>
 
-      <div id="hay_stock_total" style="display: none;">hay_stock_total</div>
-      <div id="comprar_total" style="display: none;">
-          <div class="control-group" id="comprar_total_opciones1">
+      <div id="hay_stock_total" style="display: <?php if($control_cartulina->existencia=="3"){echo "block";}else{echo "none";} ?>;">
+      
+
+
+      </div>
+       <div id="stock_parcial" style="display: none;">
+        <br />
+        <div class="control-group">
+          <label class="control-label" for="usuario">Opciones</label>
+          <div class="controls">
+          <select name="stock_parcial_opciones" onchange="control_cartulina_hay_stock_parcial_opciones(this.value);">
+          <option value="0">Seleccione..</option>
+          <option value="1">y produce parcial</option>
+          <option value="2">compra saldo y espera saldo</option>
+        </select>
+      </div>
+        </div>
+      </div>
+      <div id="comprar_total" style="display:  <?php if($control_cartulina->existencia=="2"){echo "block";}else{echo "none";} ?>;">
+        
+        <br />
+        
+        <div class="control-group">
+        <label class="control-label" for="usuario">Estado Compra total</label>
+        <div class="controls">
+          <select name="estado_compra_total" class="chosen-select">
+              <option value="por definir">por definir</option>
+              <option value="mercadería comprada">mercadería comprada</option>
+              <option value="mercadería llegada">mercadería llegada</option>
+          </select>
+        </div>
+      </div>
+
+        <div class="control-group" id="comprar_total_opciones1">
         <label class="control-label" for="usuario">Proveedor</label>
         <div class="controls">
           <select name="Proveedor_CompraTotal"  class="chosen-select" onchange="llenar_datos_proveedor(this.value);">
@@ -322,19 +392,79 @@
           </select>
         </div>
       </div>
+      <div class="control-group" id="comprar_total_opciones2">
+        <label class="control-label" for="usuario">Material Comprado</label>
+        <div class="controls">
+          <select id="mate1" name="MaterialComprado_CompraTotal" class="chosen-select" style="width: 300px">
+            <option value="0">Seleccione......</option>
+            <?php
+            $tapas=$this->materiales_model->getMaterialesSelectCartulina();
+            foreach($tapas as $tapa){
+            if (sizeof($ing)>0) {  ?>                
+                <?php if($ing->id_mat_placa1!=""){?>
+                <option value="<?php echo $tapa->id?>" <?php if($control_cartulina->MaterialComprado_CompraTotal==$tapa->id){ echo 'selected="true"';}?> ><?php echo $tapa->gramaje?> ( <?php echo $tapa->materiales_tipo?> - $<?php echo $tapa->precio?> ) (<?php echo $tapa->reverso?>)</option>
+                <?php }else{ ?>
+                <option value="<?php echo $tapa->id?>" <?php if($datos->id_mat_placa1==$tapa->id){ /*echo 'selected="true"';*/}?>><?php echo $tapa->gramaje?> ( <?php echo $tapa->materiales_tipo?> - $<?php echo $tapa->precio?> ) (<?php echo $tapa->reverso?>)</option>
+                <?php } ?>
+            <?php } else { ?>
+                <!--<option value="<?php// echo $tapa->nombre?>" <?php //if($datos->materialidad_1==$tapa->nombre){echo 'selected="true"';}?>><?php //echo $tapa->gramaje?> ( <?php //echo $tapa->materiales_tipo?> - $<?php //echo $tapa->precio?> ) (<?php //echo $tapa->reverso?>)</option>-->
+                <option value="<?php echo $tapa->id?>" <?php if($datos->id_mat_placa1==$tapa->id){ /*echo 'selected="true"';*/}?>><?php echo $tapa->gramaje?> ( <?php echo $tapa->materiales_tipo?> - $<?php echo $tapa->precio?> ) (<?php echo $tapa->reverso?>)</option>
+            <?php }
+            }
+            ?>
+          </select>
+        </div>
       </div>
-      <div id="stock_parcial" style="display: none;">stock_parcial</div>
+       <div class="control-group" id="comprar_total_opciones3">
+        <label class="control-label" for="usuario">Ancho (mm)</label>
+        <div class="controls">
+          <input type="number" name="Ancho_CompraTotal" id="Ancho_CompraTotal" value="<?php echo $control_cartulina->Ancho_CompraTotal; ?>" placeholder="Ancho" min="<?php echo $ancho_cotizado = ($ing->tamano_a_imprimir_1*10);?>" onblur="control_cartulina_validar_ancho_compra_total();" />
+        </div>
+      </div>
+
+      <div class="control-group" id="comprar_total_opciones6">
+        <label class="control-label" for="usuario">Kilos</label>
+        <div class="controls">
+          <input type="number" name="Kilos_CompraTotal" id="Kilos_CompraTotal" value="<?php echo $control_cartulina->Kilos_CompraTotal; ?>" placeholder="Kilos">
+        </div>
+      </div>
+      <div class="control-group" id="comprar_total_opciones4">
+        <label class="control-label" for="usuario">Fecha estimada de recepción en fábrica</label>
+        <div class="controls">
+          <input type="date" name="FechaEstimada_CompraTotal" value="<?php echo $control_cartulina->FechaEstimada_CompraTotal; ?>" class="form-control form_date" />
+        </div>
+      </div>
+
+      <div class="control-group" id="comprar_total_opciones5">
+        <label class="control-label" for="usuario">Fecha de recepción efectiva en fábrica</label>
+        <div class="controls">
+          <input type="date" name="FechaRecepcion_CompraTotal" value="<?php echo $control_cartulina->FechaRecepcion_CompraTotal; ?>" />
+        </div>
+      </div>
+
+      </div>
+     
       <div id="comprar_parcial" style="display: none;">comprar_parcial</div>
     </div>
     <!--bobinas-->
-        <div id="bobinas" style="display: none;">
+        <div id="bobinas" style="display: <?php if(sizeof($control_cartulina)==0){echo 'none';}else
+        {  
+          if($control_cartulina->existencia=='1')
+          {
+              echo 'block';
+          }else
+          {
+              echo 'none';
+          }
+          
+        }?>;">
 
           <!--bobina 1-->
           <h3>Primera Bobina</h3>
               <div class="control-group">
       <label class="control-label" for="usuario">Tapas (Placas) Seleccionado <br> 1ra Bobina</label>
       <div class="controls">
-        <select name="descripcion_de_la_tapa" id="select_bobina1" class="chosen-select">
+        <select name="descripcion_de_la_tapa" id="select_bobina1" class="chosen-select" onchange="control_cartulina_mostrar('kilos_bobina_seleccionada_div_rojo');control_cartulina_mostrar('kilos_bobina_seleccionada_div_verde');">
             <option value="0">Seleccione......</option>
             <option value="no_hay">No hay</option>
             <?php
@@ -343,10 +473,10 @@
             {
               if ($control_cartulina->descripcion_de_la_tapa=='')  {
                 ?>
-                  <option value="<?php echo $tapa1->codigo?>" <?php if($tapa1->nombre==$fotomecanica->materialidad_1){echo 'selected="selected"';}?>><?php echo $tapa1->gramaje?> ( <?php echo $tapa1->materiales_tipo?> - $<?php echo $tapa1->precio?> ) (<?php echo $tapa1->reverso?>)</option>
+                  <option value="<?php echo $tapa1->gramaje?>" <?php if($tapa1->nombre==$fotomecanica->materialidad_1){echo 'selected="selected"';}?>><?php echo $tapa1->gramaje?> ( <?php echo $tapa1->materiales_tipo?> - $<?php echo $tapa1->precio?> ) (<?php echo $tapa1->reverso?>)</option>
                 <?php
                 } else  { ?>
-                  <option value="<?php echo $tapa1->codigo?>" <?php if($tapa1->codigo==$control_cartulina->descripcion_de_la_tapa){echo 'selected="selected"';}?>><?php echo $tapa1->gramaje?> ( <?php echo $tapa1->materiales_tipo?> - $<?php echo $tapa1->precio?> ) (<?php echo $tapa1->reverso?>)</option>
+                  <option value="<?php echo $tapa1->gramaje?>" <?php if($tapa1->gramaje==$control_cartulina->descripcion_de_la_tapa){echo 'selected="selected"';}?>><?php echo $tapa1->gramaje?> ( <?php echo $tapa1->materiales_tipo?> - $<?php echo $tapa1->precio?> ) (<?php echo $tapa1->reverso?>)</option>
                  <?php }
              }
             ?>
@@ -363,7 +493,7 @@
     <div class="control-group">
       <label class="control-label" for="usuario">Ancho seleccionado de bobina (<?php echo ($ing->tamano_a_imprimir_1);?> Cms) 1ra Bobina</label>
       <div class="controls">
-        <input type="text" name="ancho_seleccionado_de_bobina" id="ancho_seleccionado_de_bobina"  value="<?php if($control_cartulina->ancho_seleccionado_de_bobina >0){echo ($control_cartulina->ancho_seleccionado_de_bobina);}else {echo ($ing->tamano_a_imprimir_1*10);}?>" placeholder="Ancho seleccionado de bobina" onblur="validar_ancho_bobina_seleccionada('1');" onkeypress="return soloNumeros(event)" /> 
+        <input type="text" name="ancho_seleccionado_de_bobina" id="ancho_seleccionado_de_bobina"  value="<?php if(sizeof($control_cartulina)==0){echo $ing->tamano_a_imprimir_1*10;}else{echo $control_cartulina->ancho_seleccionado_de_bobina;}?>" placeholder="Ancho seleccionado de bobina" onblur="validar_ancho_bobina_seleccionada('1');" onkeypress="return soloNumeros(event)" /> 
       </div>
     </div>
 
@@ -371,26 +501,83 @@
     <div class="control-group">
       <label class="control-label" for="usuario">Kilos de la Bobina Seleccionada <br> 1ra Bobina</label>
       <div class="controls">
-        <input type="text" name="kilos_bobina_seleccionada"  max="4000" class="limitvalue" onblur="/*validacion_kilos_bobina_seleccionada_control_cartulina();*/control_cartulina_reiniciar_calculos_bobinas_cortes('<?php echo $tapa->gramaje?>');" id="kilos_bobina_seleccionada"  value="<?php if($control_cartulina->kilos_bobina_seleccionada >0 && ($control_cartulina->situacion=='Guardar' || $control_cartulina->situacion=='Liberada')){echo ($control_cartulina->kilos_bobina_seleccionada);}else{echo 0;}?>" onkeypress="return soloNumeros(event)" placeholder="0"/> <span id="kilos_bobina_seleccionada_div" style="background-color: red;color:#fff;font-weight: bold; font-size: 11px; display: none;">ss</span>
+        <input type="text" name="kilos_bobina_seleccionada"  max="4000" class="limitvalue" onblur="control_cartulina_reiniciar_calculos_bobinas_cortes_generica(document.form.descripcion_de_la_tapa.value,document.form.ancho_seleccionado_de_bobina.value,document.form.kilos_bobina_seleccionada.value,'kilos_bobina_seleccionada_div_rojo','kilos_bobina_seleccionada_div_verde','1');control_cartulina_hay_que_bobinar('hay_que_bobinar','1');control_cartulina_tabla_hay_que_bobinar('hay_que_bobinar','ancho_seleccionado_de_bobina','hay_que_bobinar_tabla','1','aaa_1_1_2');control_cartulina_si_kilos_es_cero();" id="kilos_bobina_seleccionada"  value="<?php if($control_cartulina->kilos_bobina_seleccionada >0 && ($control_cartulina->situacion=='Guardar' || $control_cartulina->situacion=='Liberada')){echo ($control_cartulina->kilos_bobina_seleccionada);}else{echo 0;}?>" onkeypress="return soloNumeros(event)" placeholder="0"/> <span id="kilos_bobina_seleccionada_div_rojo" style="background-color: red;color:#fff;font-weight: bold; font-size: 11px; display: none;">ss</span>
+        <span id="kilos_bobina_seleccionada_div_verde" style="background-color: green;color:#fff;font-weight: bold; font-size: 11px; display: none;">ss</span>
       </div> 
     </div> 
 <div class="control-group">
       <label class="control-label" for="usuario"><strong>Hay que bobinar</strong></label>
       <div class="controls">
-        <select id="hay_que_bobinar" name="hay_que_bobinar">
-          <option value="" <?php if (sizeof($control_cartulina)==0){echo "selected";}?>>Seleccione</option>                                            
+        <select id="hay_que_bobinar" name="hay_que_bobinar" onchange="control_cartulina_tabla_hay_que_bobinar('hay_que_bobinar','ancho_seleccionado_de_bobina','hay_que_bobinar_tabla','1','aaa_1_1_2');">
+          <option value="0" <?php if (sizeof($control_cartulina)==0){echo "selected";}?>>Seleccione</option>                                            
           <option value="NO" <?php echo set_value_select($control_cartulina,'hay_que_bobinar',$control_cartulina->hay_que_bobinar,'NO');?>>NO</option>
           <option value="SI" <?php echo set_value_select($control_cartulina,'hay_que_bobinar',$control_cartulina->hay_que_bobinar,'SI');?>>SI</option>
         </select>
       </div>
           </div>
+        <?php 
+          $bobina1Metadata=$this->bobinas_model->getBobinasPorNodoNumeroBobina($control_cartulina->id_nodo,'1');
+          ?>
+        <div id="hay_que_bobinar_tabla" class="control-group" style="display: <?php if(sizeof($control_cartulina)==0){echo 'none';}else
+        {
+          if($bobina1Metadata->hay_que_bobinar=='SI')
+          {
+            echo 'block';
+          }else
+          {
+            echo 'none';
+          }
+        }?>;">
+          
+          <label class="control-label" for="usuario"><strong>Cuadro AAA Bobina 1</strong></label>
+          <div class="controls">
+          <table class="table table-bordered" style="width: 500px;">
+          <thead>
+            <tr>
+              <th>Qué corte inicio</th>
+              <th>Ancho a cortar</th>
+              <th>Saldo libre</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Corte 0</td>
+              <td style="text-align: center;">&nbsp;</td>
+              <td style="text-align: center;"><input type="text" name="aaa_1_1_2" id="aaa_1_1_2" readonly="false" style="width: 50px;" value="<?php if(sizeof($control_cartulina)==0){echo '0';}else{echo $bobina1Metadata->ancho;}?>" /></td>
+            </tr>
+            <tr>
+              <td>Corte 1</td>
+              <td style="text-align: center;"><input type="text" name="aaa_1_2_1" id="aaa_1_2_1" style="width: 50px;" value="<?php if(sizeof($control_cartulina)==0){echo '0';}else{echo $bobina1Metadata->aaa_1_2_1;}?>" onblur="control_cartulina_tabla_hay_que_bobinar_campos('1','aaa_1_2_1','aaa_1_2_2','ancho_seleccionado_de_bobina','1')" onkeypress="return soloNumeros(event)" /></td>
+              <td style="text-align: center;"><input type="text" name="aaa_1_2_2" id="aaa_1_2_2" readonly="false" style="width: 50px;" value="<?php if(sizeof($control_cartulina)==0){echo '0';}else{echo $bobina1Metadata->aaa_1_2_2;}?>" /></td>
+            </tr>
+            <tr>
+              <td>Corte 2</td>
+              <td style="text-align: center;"><input type="text" name="aaa_1_3_1" id="aaa_1_3_1" value="<?php if(sizeof($control_cartulina)==0){echo '0';}else{echo $bobina1Metadata->aaa_1_3_1;}?>" style="width: 50px;" onblur="control_cartulina_tabla_hay_que_bobinar_campos('2','aaa_1_3_1','aaa_1_3_2','ancho_seleccionado_de_bobina','1')" onkeypress="return soloNumeros(event)" /></td>
+              <td style="text-align: center;"><input type="text" name="aaa_1_3_2" id="aaa_1_3_2" readonly="false" value="<?php if(sizeof($control_cartulina)==0){echo '0';}else{echo $bobina1Metadata->aaa_1_3_2;}?>" style="width: 50px;" /></td>
+            </tr> 
+            <tr>
+              <td>Corte 3</td>
+              <td style="text-align: center;"><input type="text" name="aaa_1_4_1" id="aaa_1_4_1" value="<?php if(sizeof($control_cartulina)==0){echo '0';}else{echo $bobina1Metadata->aaa_1_4_1;}?>" style="width: 50px;" onblur="control_cartulina_tabla_hay_que_bobinar_campos('3','aaa_1_4_1','aaa_1_4_2','ancho_seleccionado_de_bobina','1')" onkeypress="return soloNumeros(event)" /></td>
+              <td style="text-align: center;"><input type="text" name="aaa_1_4_2" id="aaa_1_4_2" value="<?php if(sizeof($control_cartulina)==0){echo '0';}else{echo $bobina1Metadata->aaa_1_4_2;}?>" readonly="false" style="width: 50px;" /></td>
+            </tr>
+            <tr>
+              <td>Corte 4</td>
+              <td style="text-align: center;"><input type="text" name="aaa_1_5_1" id="aaa_1_5_1" value="<?php if(sizeof($control_cartulina)==0){echo '0';}else{echo $bobina1Metadata->aaa_1_5_1;}?>" style="width: 50px;" onblur="control_cartulina_tabla_hay_que_bobinar_campos('4','aaa_1_5_1','aaa_1_5_2','ancho_seleccionado_de_bobina','1')" onkeypress="return soloNumeros(event)" /></td>
+              <td style="text-align: center;"><input type="text" name="aaa_1_5_2" id="aaa_1_5_2" value="<?php if(sizeof($control_cartulina)==0){echo '0';}else{echo $bobina1Metadata->aaa_1_5_2;}?>" readonly="false" style="width: 50px;" /></td>
+            </tr>
+          </tbody>
+        </table> 
+        <span id="aaa_1" style="display:none;background-color: #ff0000;color:#fff;"></span>
+        </div>
+        </div> 
+
           <!--/bobina 1-->
           <!--bobina 2-->
           <h3>Segunda Bobina</h3>
           <div class="control-group">
       <label class="control-label" for="usuario">Tapas (Placas) Seleccionado <br> 1ra Bobina</label>
       <div class="controls">
-        <select name="descripcion_de_la_tapa2" id="select_bobina1" class="chosen-select">
+        <select name="descripcion_de_la_tapa2" id="select_bobina1" class="chosen-select" onchange="control_cartulina_mostrar('kilos_bobina_seleccionada_div_rojo2');control_cartulina_mostrar('kilos_bobina_seleccionada_div_verde2');">
             <option value="0">Seleccione......</option>
             <option value="no_hay">No hay</option>
             <?php
@@ -399,10 +586,10 @@
             {
               if ($control_cartulina->descripcion_de_la_tapa=='')  {
                 ?>
-                  <option value="<?php echo $tapa1->codigo?>" <?php if($tapa1->nombre==$fotomecanica->materialidad_1){echo 'selected="selected"';}?>><?php echo $tapa1->gramaje?> ( <?php echo $tapa1->materiales_tipo?> - $<?php echo $tapa1->precio?> ) (<?php echo $tapa1->reverso?>)</option>
+                  <option value="<?php echo $tapa1->gramaje?>" <?php if($tapa1->nombre==$fotomecanica->materialidad_1){echo 'selected="selected"';}?>><?php echo $tapa1->gramaje?> ( <?php echo $tapa1->materiales_tipo?> - $<?php echo $tapa1->precio?> ) (<?php echo $tapa1->reverso?>)</option>
                 <?php
                 } else  { ?>
-                  <option value="<?php echo $tapa1->codigo?>" <?php if($tapa1->codigo==$control_cartulina->descripcion_de_la_tapa){echo 'selected="selected"';}?>><?php echo $tapa1->gramaje?> ( <?php echo $tapa1->materiales_tipo?> - $<?php echo $tapa1->precio?> ) (<?php echo $tapa1->reverso?>)</option>
+                  <option value="<?php echo $tapa1->gramaje?>" <?php if($tapa1->gramaje==$control_cartulina->descripcion_de_la_tapa){echo 'selected="selected"';}?>><?php echo $tapa1->gramaje?> ( <?php echo $tapa1->materiales_tipo?> - $<?php echo $tapa1->precio?> ) (<?php echo $tapa1->reverso?>)</option>
                  <?php }
              }
             ?>
@@ -419,26 +606,36 @@
     <div class="control-group">
       <label class="control-label" for="usuario">Ancho seleccionado de bobina (<?php echo ($ing->tamano_a_imprimir_1);?> Cms) 1ra Bobina</label>
       <div class="controls">
-        <input type="text" name="ancho_seleccionado_de_bobina2" id="ancho_seleccionado_de_bobina2"  value="<?php if($control_cartulina->ancho_seleccionado_de_bobina2 >0){echo ($control_cartulina->ancho_seleccionado_de_bobina2);}else {echo ($ing->tamano_a_imprimir_1*10);}?>" placeholder="Ancho seleccionado de bobina" onblur="validar_ancho_bobina_seleccionada('2');" onkeypress="return soloNumeros(event)" /> 
+        <input type="text" name="ancho_seleccionado_de_bobina2" id="ancho_seleccionado_de_bobina2"  value="<?php if(sizeof($control_cartulina)==0){echo $ing->tamano_a_imprimir_1*10;}else{echo $control_cartulina->ancho_seleccionado_de_bobina2;}?>" placeholder="Ancho seleccionado de bobina" onblur="validar_ancho_bobina_seleccionada('2');" onkeypress="return soloNumeros(event)" /> 
       </div>
     </div>
 
 
     <div class="control-group">
-      <label class="control-label" for="usuario">Kilos de la Bobina Seleccionada <br> 1ra Bobina</label>
+      <label class="control-label" for="usuario">Kilos de la Bobina Seleccionada <br> 2ra Bobina</label>
       <div class="controls">
-        <input type="text" name="kilos_bobina_seleccionada2"  max="4000" class="limitvalue" onblur="/*validacion_kilos_bobina_seleccionada_control_cartulina();*/control_cartulina_reiniciar_calculos_bobinas_cortes2('<?php echo $tapa->gramaje?>');" id="kilos_bobina_seleccionada2"  value="<?php if($control_cartulina->kilos_bobina_seleccionada2 >0 && ($control_cartulina->situacion=='Guardar' || $control_cartulina->situacion=='Liberada')){echo ($control_cartulina->kilos_bobina_seleccionada2);}else{echo 0;}?>" onkeypress="return soloNumeros(event)" placeholder="0"/> <span id="kilos_bobina_seleccionada_div2" style="background-color: red;color:#fff;font-weight: bold; font-size: 11px; display: none;">ss</span>
+        <input type="text" name="kilos_bobina_seleccionada2"  max="4000" class="limitvalue" onblur="control_cartulina_reiniciar_calculos_bobinas_cortes_generica(document.form.descripcion_de_la_tapa2.value,document.form.ancho_seleccionado_de_bobina2.value,document.form.kilos_bobina_seleccionada2.value,'kilos_bobina_seleccionada_div_rojo2','kilos_bobina_seleccionada_div_verde2','2');control_cartulina_hay_que_bobinar('hay_que_bobinar2','2');" id="kilos_bobina_seleccionada2"  value="<?php if($control_cartulina->kilos_bobina_seleccionada2 >0 && ($control_cartulina->situacion=='Guardar' || $control_cartulina->situacion=='Liberada')){echo ($control_cartulina->kilos_bobina_seleccionada2);}else{echo 0;}?>" onkeypress="return soloNumeros(event)" placeholder="0"/> 
+        <span id="kilos_bobina_seleccionada_div_rojo2" style="background-color: red;color:#fff;font-weight: bold; font-size: 11px; display: none;">ss</span>
+        <span id="kilos_bobina_seleccionada_div_rojo_acumulado2" style="background-color: red;color:#fff;font-weight: bold; font-size: 11px; display: none;">ss</span>
+        <span id="kilos_bobina_seleccionada_div_verde2" style="background-color: green;color:#fff;font-weight: bold; font-size: 11px; display: none;">ss</span>
+        <span id="kilos_bobina_seleccionada_div_verde_acumulado2" style="background-color: green;color:#fff;font-weight: bold; font-size: 11px; display: none;">ss</span>
       </div> 
     </div> 
 <div class="control-group">
       <label class="control-label" for="usuario"><strong>Hay que bobinar</strong></label>
       <div class="controls">
-        <select id="hay_que_bobinar" name="hay_que_bobinar2">
+        <select id="hay_que_bobinar" name="hay_que_bobinar2" onchange="control_cartulina_tabla_hay_que_bobinar('hay_que_bobinar2','ancho_seleccionado_de_bobina2','hay_que_bobinar_tabla2','2','aaa_2_1_2');">
           <option value="" <?php if (sizeof($control_cartulina)==0){echo "selected";}?>>Seleccione</option>                                            
           <option value="NO" <?php echo set_value_select($control_cartulina,'hay_que_bobinar',$control_cartulina->hay_que_bobinar,'NO');?>>NO</option>
           <option value="SI" <?php echo set_value_select($control_cartulina,'hay_que_bobinar',$control_cartulina->hay_que_bobinar,'SI');?>>SI</option>
         </select>
       </div>
+
+<?php 
+          $bobina2Metadata=$this->bobinas_model->getBobinasPorNodoNumeroBobina($control_cartulina->id_nodo,'2');
+          ?>
+      
+
           </div>
           <!--/bobina 2-->
           <!--bobina 3-->
@@ -446,7 +643,7 @@
           <div class="control-group">
       <label class="control-label" for="usuario">Tapas (Placas) Seleccionado <br> 1ra Bobina</label>
       <div class="controls">
-        <select name="descripcion_de_la_tapa3" id="select_bobina1" class="chosen-select" onchange="carga_ajax_obtenerGramaje(this.value,'gramaje_ajax');">
+        <select name="descripcion_de_la_tapa3" id="select_bobina1" class="chosen-select" onchange="control_cartulina_mostrar('kilos_bobina_seleccionada_div_rojo3');control_cartulina_mostrar('kilos_bobina_seleccionada_div_verde3');">
             <option value="0">Seleccione......</option>
             <option value="no_hay">No hay</option>
             <?php
@@ -455,10 +652,10 @@
             {
               if ($control_cartulina->descripcion_de_la_tapa=='')  {
                 ?>
-                  <option value="<?php echo $tapa1->codigo?>" <?php if($tapa1->nombre==$fotomecanica->materialidad_1){echo 'selected="selected"';}?>><?php echo $tapa1->gramaje?> ( <?php echo $tapa1->materiales_tipo?> - $<?php echo $tapa1->precio?> ) (<?php echo $tapa1->reverso?>)</option>
+                  <option value="<?php echo $tapa1->gramaje?>" <?php if($tapa1->nombre==$fotomecanica->materialidad_1){echo 'selected="selected"';}?>><?php echo $tapa1->gramaje?> ( <?php echo $tapa1->materiales_tipo?> - $<?php echo $tapa1->precio?> ) (<?php echo $tapa1->reverso?>)</option>
                 <?php
                 } else  { ?>
-                  <option value="<?php echo $tapa1->codigo?>" <?php if($tapa1->codigo==$control_cartulina->descripcion_de_la_tapa){echo 'selected="selected"';}?>><?php echo $tapa1->gramaje?> ( <?php echo $tapa1->materiales_tipo?> - $<?php echo $tapa1->precio?> ) (<?php echo $tapa1->reverso?>)</option>
+                  <option value="<?php echo $tapa1->gramaje?>" <?php if($tapa1->gramaje==$control_cartulina->descripcion_de_la_tapa){echo 'selected="selected"';}?>><?php echo $tapa1->gramaje?> ( <?php echo $tapa1->materiales_tipo?> - $<?php echo $tapa1->precio?> ) (<?php echo $tapa1->reverso?>)</option>
                  <?php }
              }
             ?>
@@ -475,15 +672,19 @@
     <div class="control-group">
       <label class="control-label" for="usuario">Ancho seleccionado de bobina (<?php echo ($ing->tamano_a_imprimir_1);?> Cms) 1ra Bobina</label>
       <div class="controls">
-        <input type="text" name="ancho_seleccionado_de_bobina3" id="ancho_seleccionado_de_bobina3"  value="<?php if($control_cartulina->ancho_seleccionado_de_bobina3 >0){echo ($control_cartulina->ancho_seleccionado_de_bobina3);}else {echo ($ing->tamano_a_imprimir_1*10);}?>" placeholder="Ancho seleccionado de bobina" onblur="validar_ancho_bobina_seleccionada('3');" onkeypress="return soloNumeros(event)" /> 
+        <input type="text" name="ancho_seleccionado_de_bobina3" id="ancho_seleccionado_de_bobina3"  value="<?php if(sizeof($control_cartulina)==0){echo $ing->tamano_a_imprimir_1*10;}else{echo $control_cartulina->ancho_seleccionado_de_bobina3;}?>" placeholder="Ancho seleccionado de bobina" onblur="validar_ancho_bobina_seleccionada('3');" onkeypress="return soloNumeros(event)" /> 
       </div>
     </div>
 
 
     <div class="control-group">
-      <label class="control-label" for="usuario">Kilos de la Bobina Seleccionada <br> 1ra Bobina</label>
+      <label class="control-label" for="usuario">Kilos de la Bobina Seleccionada <br> 3ra Bobina</label>
       <div class="controls">
-        <input type="text" name="kilos_bobina_seleccionada3"  max="4000" class="limitvalue" onblur="/*validacion_kilos_bobina_seleccionada_control_cartulina();*/control_cartulina_reiniciar_calculos_bobinas_cortes3('<?php echo $tapa->gramaje?>');" id="kilos_bobina_seleccionada3"  value="<?php if($control_cartulina->kilos_bobina_seleccionada3 >0 && ($control_cartulina->situacion=='Guardar' || $control_cartulina->situacion=='Liberada')){echo ($control_cartulina->kilos_bobina_seleccionada3);}else{echo 0;}?>" onkeypress="return soloNumeros(event)" placeholder="0"/> <span id="kilos_bobina_seleccionada_div3" style="background-color: red;color:#fff;font-weight: bold; font-size: 11px; display: none;">ss</span>
+        <input type="text" name="kilos_bobina_seleccionada3"  max="4000" class="limitvalue" onblur="control_cartulina_reiniciar_calculos_bobinas_cortes_generica(document.form.descripcion_de_la_tapa3.value,document.form.ancho_seleccionado_de_bobina3.value,document.form.kilos_bobina_seleccionada3.value,'kilos_bobina_seleccionada_div_rojo3','kilos_bobina_seleccionada_div_verde3','3');control_cartulina_hay_que_bobinar('hay_que_bobinar3','3');" id="kilos_bobina_seleccionada3"  value="<?php if($control_cartulina->kilos_bobina_seleccionada3 >0 && ($control_cartulina->situacion=='Guardar' || $control_cartulina->situacion=='Liberada')){echo ($control_cartulina->kilos_bobina_seleccionada3);}else{echo 0;}?>" onkeypress="return soloNumeros(event)" placeholder="0"/> 
+        <span id="kilos_bobina_seleccionada_div_rojo3" style="background-color: red;color:#fff;font-weight: bold; font-size: 11px; display: none;">ss</span>
+        <span id="kilos_bobina_seleccionada_div_rojo_acumulado3" style="background-color: red;color:#fff;font-weight: bold; font-size: 11px; display: none;">ss</span>
+        <span id="kilos_bobina_seleccionada_div_verde3" style="background-color: green;color:#fff;font-weight: bold; font-size: 11px; display: none;">ss</span>
+        <span id="kilos_bobina_seleccionada_div_verde_acumulado3" style="background-color: green;color:#fff;font-weight: bold; font-size: 11px; display: none;">ss</span>
       </div> 
     </div> 
 <div class="control-group">
@@ -686,10 +887,33 @@
 
   <div class="control-group">
     <div class="form-actions">
-        <input type="button" value="Guardar" class="btn <?php if($control_cartulina->estado==0){echo 'btn-warning';}?>" onclick="guardarFormularioAdd('0');forma.submit()"/>
+        <input type="button" value="Guardar" class="btn <?php if($control_cartulina->estado==0){echo 'btn-warning';}?>" onclick="guardarFormularioAdd('0');"/>
       
-        <input type="button" value="Liberar" class="btn <?php if($control_cartulina->estado==1){echo 'btn-warning';}?> boton_liberar_normal liberar_boton_class" id='btnliberar'/>
+        <?php
+        if($control_cartulina->existencia=='2')
+        {
+            ?>
+            <input type="button" value="Liberar" class="btn <?php if($control_cartulina->estado==1){echo 'btn-warning';}?> boton_liberar_normal liberar_boton_class" onclick="alert('No se puede liberar aun');" />
+            <?php
+        }else
+        {
+            ?>
+            <input type="button" value="Liberar" class="btn <?php if($control_cartulina->estado==1){echo 'btn-warning';}?> boton_liberar_normal liberar_boton_class" onclick="guardarFormularioAdd('3')" id='btnliberar'/>
+            <?php
+        }
+        ?>
+        
+
         <input type="button" value="Reversar" class="btn <?php if($control_cartulina->estado==4){echo 'btn-warning';}?>" onclick="guardarFormularioAdd('4');" onclick="reversar(<?php echo $dato->id ?>)" />
+        <?php
+        if($control_cartulina->estado=='1')
+        {
+          ?>
+        <a href="<?php echo base_url();?>produccion/control_cartulina_etiqueta_bobina_pdf/<?php echo $id?>/<?php echo $orden_de_trabajo?>" class="btn btn-danger" target="_blank">PDF Etiqueta Bobina</a>
+          <?php
+        }
+        ?>
+        
     </div>
   </div> 
 
@@ -717,7 +941,7 @@
       <input type="hidden" name="pagina" value="<?php echo $pagina?>" />
       <input type="hidden" name="id" value="<?php echo $id?>" />
       <input type="hidden" name="orden_de_trabajo" value="<?php echo $orden_de_trabajo?>" />
-      <input type="hidden" name="ancho_minimo_bobina" value="<?php echo ($ing->tamano_cuchillo_1+2)*10?>" />
+      <input type="hidden" name="ancho_minimo_bobina" value="<?php echo ($ing->tamano_cuchillo_1+1)*10?>" />
       <input type="hidden" name="id_cliente" value="<?php if($tipo==1){echo $datos->id_cliente;}else{echo $datos->cliente;}?>" />
       <input type="hidden" name="indicador" />
       <input type="hidden" name="estado" />
@@ -734,6 +958,11 @@
 
       <input type="hidden" id="total_metros_restantes" name="total_metros_restantes">
       <input type="hidden" id="total_metros_ingresados" name="total_metros_ingresados" value="<?php echo $control_cartulina->total_metros_ingresados; ?>">
+      <input type="hidden" name="bobina_1_total_metros_cotizados" />
+      <input type="hidden" name="bobina_2_total_metros_cotizados" />
+      <input type="hidden" name="bobina_1_estado" value="0" />
+      <input type="hidden" name="bobina_2_estado" value="0" />
+      <input type="hidden" name="bobina_3_estado" value="0" />
 <!--/formulario-->
 <?php echo form_close();?>
 </div>

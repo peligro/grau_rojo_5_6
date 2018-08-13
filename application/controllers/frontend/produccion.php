@@ -2343,7 +2343,83 @@ class Produccion extends CI_Controller {
             redirect(base_url().'usuarios/login',  301);
         }
         
-	}
+    }
+    public function control_cartulina_etiqueta_bobina_pdf($id=null, $orden_de_trabajo=null)
+    {
+        if($this->session->userdata('id'))
+        {
+            if(!$id or !$orden_de_trabajo){show_404();}
+            $control_cartulina=$this->produccion_model->getControlCartulinaPorTipo(1,$id);
+            if(sizeof($control_cartulina)==0){show_404();}
+            $bobinas=$this->bobinas_model->getBobinasPorNodo($id);
+            $quien_sabe_ubicacion_de_la_bobina=$this->usuarios_model->getUsuariosPorId($control_cartulina->quien_sabe_ubicacion_de_la_bobina);
+            $hoja=$this->cotizaciones_model->getHojaDeCostosPorIdCotizacion($id);
+            $ing=$this->cotizaciones_model->getCotizacionIngenieriaPorIdCotizacion($id);
+            $fotomecanica=$this->cotizaciones_model->getCotizacionFotomecanicaPorIdCotizacion($id);
+            //print_r($bobinas);exit;
+            //border-bottom:#2e4050;border-bottom-style:solid;border-bottom-width:1px!important
+            $para_cortar=$ing->tamano_a_imprimir_2*10;
+            $kilos_restantes_seleccionado=($bobinas[0]->bobina_total_metros_cotizados*$bobinas[0]->gramaje*$bobinas[0]->ancho)/1000000;
+            $datos=$this->cotizaciones_model->getCotizacionPorId($id);
+            $cli=$this->clientes_model->getClientePorId($datos->id_cliente);
+            $materialidad_1=$this->materiales_model->getMaterialesPorNombre($fotomecanica->materialidad_1);
+            $tapa = $this->materiales_model->getMaterialesPorNombre($fotomecanica->materialidad_1);
+            //print_r($tapa);exit;
+            $monda = $this->materiales_model->getMaterialesPorNombre($fotomecanica->materialidad_2);
+            $mliner = $this->materiales_model->getMaterialesPorNombre($fotomecanica->materialidad_3); 
+            $pliegos_buenos=$hoja->placa_kilo-$hoja->total_merma;
+            $html='';
+            $html.='<h3>EMISIÓN DE ETIQUETA PARA MARCAR BOBINAS</h3>';
+            $html.='<table style="font-size:12px;">';
+            $html.='<tr>';
+            $html.='<td>opción 1</td><td>menú bobina</td><td></td><td>hay stock total</td><td></td><td>hay que bobinar</td><td></td><td></td><td></td><td></td><td>SUPUESTOS<br />QUE SE ELIGEN 2 BOBINAS<br />DE 1000 DE ANCHO Y 2000 KILOS CADA UNA</td>';
+            $html.='</tr>';
+            $html.='<tr><td>&nbsp;</td><td>&nbsp;</td><td></td><td>&nbsp;</td><td></td><td>&nbsp;</td><td></td><td></td><td></td><td></td><td>&nbsp;</td></tr>';
+            $html.='<tr>';
+            $html.='<td>OT</td><td>'.$orden_de_trabajo.'</td><td></td><td>&nbsp;</td><td></td><td>&nbsp;</td><td></td><td></td><td></td><td></td><td>&nbsp;</td>';
+            $html.='</tr>';
+            $html.='<tr>';
+            $html.='<td>NÚMERO DE BOBINAS SELECCIONADAS</td><td>&nbsp;</td><td></td><td>&nbsp;</td><td>'.sizeof($bobinas).'</td><td>&nbsp;</td><td></td><td></td><td></td><td></td><td>&nbsp;</td>';
+            $html.='</tr>';
+            $html.='<tr>';
+            $html.='<td>DESCRIPCIÓN BOBINA SELECCIONADA</td><td>&nbsp;</td><td></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td></td><td></td><td></td><td></td><td>&nbsp;</td>';
+            $html.='</tr>';
+            $html.='<tr><td>&nbsp;</td><td>&nbsp;</td><td></td><td>&nbsp;</td><td></td><td>&nbsp;</td><td></td><td></td><td></td><td></td><td>&nbsp;</td></tr>';
+            $html.='<tr><td>BOBINA 1</td><td>&nbsp;</td><td></td><td>&nbsp;</td><td>BOBINA 2</td><td>&nbsp;</td><td></td><td></td><td>BOBINA 3</td><td></td><td>&nbsp;</td></tr>';
+            $html.='<tr><td>MATERIAL</td><td>&nbsp;</td><td>CARTULINA</td><td>&nbsp;</td><td>MATERIAL</td><td>&nbsp;</td><td>CARTULINA</td><td></td><td>MATERIAL</td><td></td><td>CARTULINA</td></tr>';
+            $html.='<tr><td>GRAMAJE</td><td>&nbsp;</td><td>'.$bobinas[0]->gramaje.'</td><td>&nbsp;</td><td>GRAMAJE</td><td>&nbsp;</td><td>'.$bobinas[1]->gramaje.'</td><td></td><td>GRAMAJE</td><td></td><td>'.$bobinas[2]->gramaje.'</td></tr>';
+            $html.='<tr><td>REVERSO</td><td>&nbsp;</td><td>CAFÉ</td><td>&nbsp;</td><td>REVERSO</td><td>&nbsp;</td><td>CAFÉ</td><td></td><td>REVERSO</td><td></td><td>CAFÉ</td></tr>';
+            $html.='<tr><td>KILOS</td><td>&nbsp;</td><td>'.$bobinas[0]->kilos.'</td><td>&nbsp;</td><td>KILOS</td><td>&nbsp;</td><td>'.$bobinas[1]->kilos.'</td><td></td><td>KILOS</td><td></td><td>'.$bobinas[2]->kilos.'</td></tr>';
+            $html.='<tr><td>ANCHO DE ESTA BOBINA</td><td>&nbsp;</td><td>'.$bobinas[0]->ancho.'</td><td>&nbsp;</td><td>ANCHO DE ESTA BOBINA</td><td>&nbsp;</td><td>'.$bobinas[1]->ancho.'</td><td></td><td>ANCHO DE ESTA BOBINA</td><td></td><td>'.$bobinas[2]->ancho.'</td></tr>';
+            $html.='<tr><td>METROS DE ESTA BOBINA</td><td>&nbsp;</td><td>'.$bobinas[0]->bobina_total_metros_cotizados.'</td><td>&nbsp;</td><td>METROS DE ESTA BOBINA</td><td>&nbsp;</td><td>xxx</td><td></td><td>METROS DE ESTA BOBINA</td><td></td><td>xxx</td></tr>';
+            $html.='<tr><td>QUIEN SABE</td><td>&nbsp;</td><td>'.$quien_sabe_ubicacion_de_la_bobina->nombre.'</td><td>&nbsp;</td><td>QUIEN SABE</td><td>&nbsp;</td><td>'.$quien_sabe_ubicacion_de_la_bobina->nombre.'</td><td></td><td>QUIEN SABE</td><td></td><td>'.$quien_sabe_ubicacion_de_la_bobina->nombre.'</td></tr>';
+            
+            $html.='<tr><td>DESTINO BE ESTA BOBINA</td><td>&nbsp;</td><td>CORTE</td><td>&nbsp;</td><td>DESTINO BE ESTA BOBINA</td><td>&nbsp;</td><td>CORTE</td><td></td><td>DESTINO BE ESTA BOBINA</td><td></td><td>CORTE</td></tr>';
+            $html.='<tr><td>CORTES PARA LA ORDEN</td><td>&nbsp;</td><td></td><td>'.$hoja->placa_kilo.'</td><td></td><td>&nbsp;</td><td></td><td></td><td></td><td></td><td>&nbsp;</td></tr>';
+            $html.='<tr><td>PARA CORTAR A</td><td>&nbsp;</td><td>&nbsp;</td><td>'.$para_cortar.'</td><td></td><td>&nbsp;</td><td></td><td></td><td></td><td></td><td>&nbsp;</td></tr>';
+            $html.='<tr><td>TOTAL CORTES PRIMERA BOBINA</td><td>&nbsp;</td><td></td><td>'.$bobinas[0]->bobina_total_metros_cotizados.'</td><td></td><td>&nbsp;</td><td></td><td></td><td></td><td></td><td>&nbsp;</td></tr>';
+            $html.='<tr><td>TOTAL CORTES SEGUNDA BOBINA</td><td>&nbsp;</td><td></td><td>xxx</td><td></td><td>&nbsp;</td><td></td><td></td><td></td><td></td><td>&nbsp;</td></tr>';
+            $html.='<tr><td>KILOS SOBRANTES</td><td>&nbsp;</td><td></td><td>'.number_format($kilos_restantes_seleccionado,0,'','').' KILOS</td><td></td><td>&nbsp;</td><td></td><td></td><td></td><td></td><td>&nbsp;</td></tr>';
+            $html.='</table>';
+            $html.='<table style="font-size:12px;">';
+            $html.='<tr>';
+                $html.='<td>TOTAL PLIEGOS</td><td>PLIEGOS BUENOS</td><td>FECHA</td><td>OT</td><td>HC</td><td>PLIEGOS</td><td>CLIENTE</td><td>COD</td><td>PEDIDO</td><td>PRODUCTO</td><td></td><td></td><td></td><td>ANCHO</td><td>LARGO</td><td>LINER</td><td>ONDA</td><td>MICRO</td>';
+            $html.='</tr>';
+            $html.='<tr>';
+                $html.='<td>'.$hoja->placa_kilo.'</td><td>'.$pliegos_buenos.'</td><td>'.invierte_fecha($control_cartulina->cuando).'</td><td>'.$orden_de_trabajo.'</td><td>'.$id.'</td><td>'.$hoja->placa_kilo.'</td><td>'.$cli->razon_social.'</td><td>-----</td><td>'.$pliegos_buenos.'</td><td>'.$datos->producto.'</td><td></td><td></td><td></td><td>'.$ing->tamano_a_imprimir_1.'</td><td>'.$ing->tamano_a_imprimir_2.'</td><td>'.$mliner->gramaje.'</td><td>'.$monda->gramaje.'</td><td>'.$fotomecanica->materialidad_datos_tecnicos.'</td>';
+            $html.='</tr>';
+            $html.='</table>';
+            $this->load->library('mPDF');
+            $pdf = new mPDF('c');
+            $pdf->setTitle('EMISIÓN DE ETIQUETA PARA MARCAR BOBINAS');
+            $pdf->WriteHTML($html);
+            $pdf->Output();
+            exit;
+        }else
+            {
+                redirect(base_url().'usuarios/login',  301);
+            }
+    }
      public function control_cartulina($tipo=null,$id=null,$pagina=null,$orden_de_trabajo=null)
     {
         if($this->session->userdata('id'))
@@ -2361,6 +2437,7 @@ class Produccion extends CI_Controller {
                     }      
             if(sizeof($datos)==0){show_404();}
             $control_cartulina=$this->produccion_model->getControlCartulinaPorTipo($tipo,$id);
+            //print_r($control_cartulina);exit;
             $cotizacion=$this->cotizaciones_model->getCotizacionPorId($id);
             $ing=$this->cotizaciones_model->getCotizacionIngenieriaPorIdCotizacion($id);
             $fotomecanica=$this->cotizaciones_model->getCotizacionFotomecanicaPorIdCotizacion($id);
@@ -2602,6 +2679,10 @@ class Produccion extends CI_Controller {
                             $FechaEstimada_ComprarSaldo_ComprarParcial     ='';
                             $FechaRecepcion_ComprarSaldo_ComprarParcial    ='';
                             $menu_bobina_pliego                            ='';
+                            $this->db->where(array("id_nodo"=>$this->input->post('id',true)))->delete("produccion_control_cartulina");
+                            $this->db->where(array("id_nodo"=>$this->input->post('id',true)))->delete("bobinas");
+                            $this->session->set_flashdata('ControllerMessage', 'Se ha realizado la reversa exitosamente.');                             
+                            redirect(base_url().'produccion/control_cartulina/'.$tipo.'/'.$this->input->post('id').'/'.$pagina.'/'.$this->input->post('orden_de_trabajo'),  301);
                         break;
                      }                    
 
@@ -2800,12 +2881,13 @@ class Produccion extends CI_Controller {
 
                         //Raul Escalona
                         "existencia"                                    =>$existencia,
-                        "Proveedor_CompraTotal"                         =>$Proveedor_CompraTotal,
-                        "MaterialComprado_CompraTotal"                  =>$MaterialComprado_CompraTotal,
-                        "Ancho_CompraTotal"                             =>$Ancho_CompraTotal,
-                        "Kilos_CompraTotal"                             =>$Kilos_CompraTotal,
-                        "FechaEstimada_CompraTotal"                     =>$FechaEstimada_CompraTotal,
-                        "FechaRecepcion_CompraTotal"                    =>$FechaRecepcion_CompraTotal,
+                        "estado_compra_total"                                    =>$this->input->post('estado_compra_total',true),
+                        "Proveedor_CompraTotal"                         =>$this->input->post('Proveedor_CompraTotal',true),
+                        "MaterialComprado_CompraTotal"                  =>$this->input->post('MaterialComprado_CompraTotal',true),
+                        "Ancho_CompraTotal"                             =>$this->input->post('Ancho_CompraTotal',true),
+                        "Kilos_CompraTotal"                             =>$this->input->post('Kilos_CompraTotal',true),
+                        "FechaEstimada_CompraTotal"                     =>$this->input->post('FechaEstimada_CompraTotal',true),
+                        "FechaRecepcion_CompraTotal"                    =>$this->input->post('FechaRecepcion_CompraTotal',true),
                         "Opciones_StockParcial"                         =>$Opciones_StockParcial,
                         "KilosEnStock_ComprarSaldo_StockParcial"        =>$KilosEnStock_ComprarSaldo_StockParcial,
                         "Proveedor_ComprarSaldo_StockParcial"           =>$Proveedor_ComprarSaldo_StockParcial,
@@ -2865,14 +2947,25 @@ class Produccion extends CI_Controller {
                     $bobina1 = array(
                         "id_nodo"=>$this->input->post('id',true),
                         //"descripcion"=>$this->input->post('descripcion_de_la_tapa2',true),
+                        'bobina'=>'1',
                         "gramaje"=>$this->input->post('gramaje_seleccionado',true),
                         "kilos"=>$this->input->post('kilos_bobina_seleccionada',true),
                         "ancho"=>$this->input->post('ancho_seleccionado_de_bobina',true),
                         'hay_que_bobinar'=>$this->input->post('hay_que_bobinar',true),
+                        'aaa_1_2_1'=>$this->input->post('aaa_1_2_1',true),
+                        'aaa_1_2_2'=>$this->input->post('aaa_1_2_2',true),
+                        'aaa_1_3_1'=>$this->input->post('aaa_1_3_1',true),
+                        'aaa_1_3_2'=>$this->input->post('aaa_1_3_2',true),
+                        'aaa_1_4_1'=>$this->input->post('aaa_1_4_1',true),
+                        'aaa_1_4_2'=>$this->input->post('aaa_1_4_2',true),
+                        'aaa_1_5_1'=>$this->input->post('aaa_1_5_1',true),
+                        'aaa_1_5_2'=>$this->input->post('aaa_1_5_2',true),
+                        'bobina_total_metros_cotizados'=>$this->input->post('bobina_1_total_metros_cotizados',true),
                     );
                     $bobina2 = array(
                         "id_nodo"=>$this->input->post('id',true),
                         //"descripcion"=>$this->input->post('descripcion_de_la_tapa2',true),
+                        'bobina'=>'2',
                         "gramaje"=>$this->input->post('gramaje_seleccionado2',true),
                         "kilos"=>$this->input->post('kilos_bobina_seleccionada2',true),
                         "ancho"=>$this->input->post('ancho_seleccionado_de_bobina2',true),
@@ -2881,6 +2974,7 @@ class Produccion extends CI_Controller {
                     $bobina3 = array(
                         "id_nodo"=>$this->input->post('id',true),
                         //"descripcion"=>$this->input->post('descripcion_de_la_tapa2',true),
+                        'bobina'=>'3',
                         "gramaje"=>$this->input->post('gramaje_seleccionado3',true),
                         "kilos"=>$this->input->post('kilos_bobina_seleccionada3',true),
                         "ancho"=>$this->input->post('ancho_seleccionado_de_bobina3',true),
@@ -3084,6 +3178,7 @@ class Produccion extends CI_Controller {
                     base_url()."public/backend/fancybox/jquery.fancybox.css",
                     base_url()."public/frontend/css/prism.css",
                     base_url()."public/frontend/css/chosen.css",
+                   // base_url().'public/frontend/datetimepicker/css/bootstrap-datetimepicker.min.css',
                 )
             );        
             $this->layout->js
@@ -3099,10 +3194,12 @@ class Produccion extends CI_Controller {
                     base_url()."public/backend/fancybox/jquery.fancybox.js",
                     base_url()."public/frontend/js/chosen.jquery.js",
                     base_url()."public/frontend/js/prism.js",
+                   // base_url().'public/frontend/datetimepicker/js/bootstrap-datetimepicker.js',
+                    //base_url().'public/frontend/datetimepicker/js/locales/bootstrap-datetimepicker.es.js',
                 )
             );            
             $usuarios=$this->usuarios_model->getUsuarios();
-            //print_r($bobinasNodos);exit;
+            //print_r($fotomecanica);exit;
             $this->layout->view("control_cartulina",compact('usuarios','datos','tipo','pagina','id','control_cartulina','ing','fotomecanica','hoja','fotomecanica2','orden','ordenDeCompra','tapa','monda','mliner','materialidad_1','materialidad_2','materialidad_3','bobinas','orden_de_trabajo','bobinasNodos')); 
         }else
         {

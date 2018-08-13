@@ -1,3 +1,7 @@
+<?php
+$c=$this->uri->segment('1');
+$m=$this->uri->segment('2');
+?>
 <!DOCTYPE html>
 <html lang="es">
 	<head>
@@ -27,18 +31,16 @@
          <?php echo $this->layout->js; ?> 
          <script type="text/javascript">var webroot = '<?php echo base_url(); ?>';</script>
         <script src="<?php echo base_url(); ?>public/frontend/js/funciones.js?estilo=<?php echo strtotime(date("Y-m-d H:i:s"));?>"></script>
-            <?php
-                if($this->uri->segment('1')=='produccion' and $this->uri->segment('2')=='control_cartulina')
-                {
-                    ?>
-                    
-                    <?php
-                }
-            ?>
+           
          <script src="<?php echo base_url(); ?>public/frontend/js/jquery.dataTables.min.js"></script>
     <script src="<?php echo base_url(); ?>public/frontend/js/dataTables.bootstrap.min.js"></script>
          
-
+    <?php
+if($c=='produccion' and $m=='control_cartulina')
+{
+  
+}
+?> 
 
 		<!--[if IE 7]>
 			<script src="<?php echo base_url(); ?>public/backend/js/backend/admin-ie7.js"></script>

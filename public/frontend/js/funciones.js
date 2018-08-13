@@ -7,7 +7,7 @@ function enviaSelect(vista,valor)
     switch(vista)
     {
         case 'cotizaciones':
-            window.location=webroot+"cotizaciones/search1/"+valor;
+            window.location=webroot+"cotizaciones/search1/"+valor; 
         break;
         case 'usuarios':
             switch(valor)
@@ -958,8 +958,28 @@ function guardarFormulario(valor)
 function guardarFormularioAdd(valor)
 {
   //  alert(valor);
-    var form=document.form;
+    var fecha=document.form.FechaEstimada_CompraTotal.value;
+     //alert(document.form.existencia.value);return false;
+     if(document.form.existencia.value=='2')
+     {
+          if(fecha=='')
+         {
+            alert("Debe indicar Fecha estimada de recepción en fábrica");
+            return false;
+         }
+     }
+     if(document.form.existencia.value=='1')
+     {
+        if(document.form.ancho_seleccionado_de_bobina.value=='' || document.form.kilos_bobina_seleccionada.value=='')
+         {
+                alert("Debe completar la primera bobina");
+                return false;
+         }
+     }
+     
+    var form=document.form; 
     form.estado.value=valor;
+    
     if(valor=='2')
     {
         document.getElementById('rechazo').style.display='block';
@@ -978,7 +998,14 @@ function guardarFormularioAdd(valor)
     if(valor=='3')
     {
         form.estado.value=valor;
+        if(document.form.bobina_1_estado.value=='0')
+        {
+            alert('No se puede liberar porque los datos ingresados en la bobina 1 son inconsistentes(aparece el texto en rojo)');
+            return false;
+        }
+        
     }
+   
     
     
     
@@ -1000,6 +1027,7 @@ function guardarFormularioAddconfirm(valor)
     
     var form=document.form;
     form.estado.value=valor;
+    /*
     if(valor=='2')
     {
         document.getElementById('rechazo').style.display='block';
@@ -1014,12 +1042,11 @@ function guardarFormularioAddconfirm(valor)
         form.glosa.focus();
         return false;
     }
-    
+    */
     if(valor=='3')
     {
         form.estado.value=valor;
     }
-    
     
     
     form.submit();
@@ -3579,23 +3606,56 @@ function validar_ancho_bobina_seleccionada(quehago)
     {
       case '1':
         var ancho_seleccionado_de_bobina=parseInt(document.form.ancho_seleccionado_de_bobina.value);
+        if(parseInt(ancho_seleccionado_de_bobina)>2500)
+        {
+            alert('El ancho seleccionado no puede ser mayor que 2500');
+            document.form.ancho_seleccionado_de_bobina.value='0';
+            return false;
+            
+        }
       break;
       case '2':
+        if(document.form.ancho_seleccionado_de_bobina.value==0 || document.form.ancho_seleccionado_de_bobina.value=='')
+          {
+            
+            alert("No se puede calcular porque no se han ingresado los datos de la bobina 1");
+            return false;
+          }
         var ancho_seleccionado_de_bobina=parseInt(document.form.ancho_seleccionado_de_bobina2.value);
+        if(parseInt(ancho_seleccionado_de_bobina)>2500)
+        {
+            alert('El ancho seleccionado no puede ser mayor que 2500');
+            document.form.ancho_seleccionado_de_bobina2.value='0';
+            return false;
+            
+        }
       break;
       case '3':
+      if(document.form.ancho_seleccionado_de_bobina2.value==0 || document.form.ancho_seleccionado_de_bobina2.value=='')
+          {
+              alert("No se puede calcular porque no se han ingresado los datos de la bobina 2");
+              return false;
+          }
         var ancho_seleccionado_de_bobina=parseInt(document.form.ancho_seleccionado_de_bobina3.value);
+        if(parseInt(ancho_seleccionado_de_bobina)>2500)
+        {
+            alert('El ancho seleccionado no puede ser mayor que 2500');
+            document.form.ancho_seleccionado_de_bobina3.value='0';
+            return false;
+            
+        }
       break;
     }
     
     //alert(document.form.ancho_seleccionado_de_bobina.value+")\nancho bobina seleccionado2="+ancho_bobina_seleccionada2);return false;
     //var ancho_bobina_seleccionada2=document.form.ancho_de_bobina.value;
-    document.getElementById('kilos_bobina_seleccionada_div').style.display='none';
+    //document.getElementById('kilos_bobina_seleccionada_div').style.display='none';
    if (ancho_minimo_bobina>ancho_seleccionado_de_bobina)
    //if (document.form.ancho_seleccionado_de_bobina.value>ancho_bobina_seleccionada2)  
     {
       alert("No puedes ingresar un valor menor al Ancho de la bobina cotizada ");
-
+      document.form.ancho_seleccionado_de_bobina.value='0';
+            document.form.kilos_bobina_seleccionada.value='0';
       return false; 
       //alert("No puedes ingresar un valor menor al Ancho de la bobina cotizada (ancho bobina: ("+ancho_minimo_bobina+")\nancho bobina seleccionado2="+ancho_seleccionado_de_bobina);
     } 
@@ -3983,7 +4043,7 @@ function comprueba_extension(formulario, archivo) {
       alert(extension);
       permitida = false; 
       for (var i = 0; i < extensiones_permitidas.length; i++) { 
-         if (extensiones_permitidas[i] == extension) { 
+         if (extensiones_permitidas[i] == ex|tension) { 
          permitida = true; 
          break; 
          } 
@@ -5583,7 +5643,7 @@ function control_cartulina_menus_existencias(id)
             document.getElementById('comprar_total').style.display='none';
             document.getElementById('stock_parcial').style.display='block';
             document.getElementById('comprar_parcial').style.display='none';
-            document.getElementById('bobinas').style.display='none';
+            document.getElementById('bobinas').style.display='block';
             return false;
           break;
           case '4':
@@ -5598,10 +5658,350 @@ function control_cartulina_menus_existencias(id)
       }
   }
 }
+function control_cartulina_si_kilos_es_cero()
+{
+    if(document.form.kilos_bobina_seleccionada.value==0 || document.form.kilos_bobina_seleccionada.value=='0' || document.form.kilos_bobina_seleccionada.value=='')
+                    {
+                        //alert('kilos ='+document.form.kilos_bobina_seleccionada.value);
+                        document.getElementById('hay_que_bobinar_tabla').style.display='none';
+                        return false;
+                    }
+}
+function control_cartulina_tabla_hay_que_bobinar_campos(posicion,valor_campo1,valor_campo2,valor_ancho,bobina)
+{
+    
+    
+    var ancho_minimo_bobina= parseInt(document.form.ancho_minimo_bobina.value);
+    var ancho=parseInt(document.getElementById(valor_ancho).value);
+    var campo1=parseInt(document.getElementById(valor_campo1).value);
+    var campo2=parseInt(document.getElementById(valor_campo2).value);
+    var resultado;
+    var var_1840=parseInt(1840);
+    var var_50=parseInt(50);
+    /*
+    if(ancho<campo1)
+    {
+      alert('No puede ingresar un valor menor al ancho seleccionado para esta bobina');
+      return false;
+    }
+    */
+    switch(bobina)
+    {
+      case '1':
+          switch(posicion)
+          {
+              case '1':
+              
+                //console.log('ancho='+document.getElementById(valor_campo1).value+'\nancho mínimo='+ancho_minimo_bobina);
+                //parseInt(document.getElementById(valor_campo1).value)>var_1840 ||
+                if(parseInt(document.getElementById(valor_campo1).value)<ancho_minimo_bobina ||  parseInt(document.getElementById(valor_campo1).value)>=parseInt(document.form.ancho_seleccionado_de_bobina.value))
+                {
+                    //alert('Este valor no puede ser menor a '+ancho_minimo_bobina);
+                    document.getElementById('aaa_1').style.display='block';
+                    //document.getElementById('aaa_1').innerHTML='Este valor no puede ser menor a '+ancho_minimo_bobina+' ni mayor de '+var_1840+' ni mayor de '+document.form.ancho_seleccionado_de_bobina.value;
+                    document.getElementById('aaa_1').innerHTML='ESTE VALOR NO PUEDE SER MENOR A '+ancho_minimo_bobina+' NI MAYOR A '+document.form.ancho_seleccionado_de_bobina.value+' Y COMO MAXIMO '+var_1840;
+                    document.getElementById(valor_campo2).value=0;
+                    
+                    document.getElementById('aaa_1_3_1').value=0;
+                    document.getElementById('aaa_1_3_1').readOnly=true;
+                    document.getElementById('aaa_1_3_2').value=0;
+                    document.getElementById('aaa_1_4_1').value=0;
+                    document.getElementById('aaa_1_4_1').readOnly=true;
+                    document.getElementById('aaa_1_4_2').value=0;
+                    document.getElementById('aaa_1_5_1').value=0;
+                    document.getElementById('aaa_1_5_1').readOnly=true;
+                    document.getElementById('aaa_1_5_2').value=0;
+                    
+                    return false;
+                }else
+                {
+                    document.getElementById('aaa_1').style.display='none';
+
+                    document.getElementById('aaa_1_3_1').readOnly=false;
+                    document.getElementById('aaa_1_4_1').readOnly=false;
+                    document.getElementById('aaa_1_5_1').readOnly=false;
+
+                    document.getElementById(valor_campo2).value=ancho-campo1;
+                }
+                
+              break;
+              case '2':
+                if(parseInt(document.getElementById(valor_campo1).value)<var_50 || parseInt(document.getElementById(valor_campo1).value)>var_1840)
+                {
+                    //alert('Este valor no puede ser menor a 50');
+                    document.getElementById('aaa_1').style.display='block';
+                    document.getElementById('aaa_1').innerHTML='Este valor no puede ser menor a '+var_50+' ni mayor de '+var_1840;
+                    document.getElementById(valor_campo2).value=0;
+
+                    document.getElementById('aaa_1_3_2').value=0;
+                    document.getElementById('aaa_1_4_1').value=0;
+                    document.getElementById('aaa_1_4_1').readOnly=true;
+                    document.getElementById('aaa_1_4_2').value=0;
+                    document.getElementById('aaa_1_5_1').value=0;
+                    document.getElementById('aaa_1_5_1').readOnly=true;
+                    document.getElementById('aaa_1_5_2').value=0;
+
+                    return false;
+                }else
+                {
+                  document.getElementById('aaa_1').style.display='none';
+                  document.getElementById('aaa_1_4_1').readOnly=false;
+                  document.getElementById('aaa_1_5_1').readOnly=false;
+                  resultado=ancho-campo1;
+                resultado=resultado- parseInt(document.getElementById('aaa_1_2_1').value);
+                document.getElementById(valor_campo2).value=resultado;
+                }
+                
+              break;
+              case '3':
+                if(parseInt(document.getElementById(valor_campo1).value)<var_50 || parseInt(document.getElementById(valor_campo1).value)>var_1840)
+                {
+                    document.getElementById('aaa_1').style.display='block';
+                    document.getElementById('aaa_1').innerHTML='Este valor no puede ser menor a '+var_50+' ni mayor de '+var_1840;
+                    document.getElementById(valor_campo2).value=0;
+
+                    document.getElementById('aaa_1_4_2').value=0;
+                    document.getElementById('aaa_1_5_1').value=0;
+                    document.getElementById('aaa_1_5_1').readOnly=true;
+                    document.getElementById('aaa_1_5_2').value=0;
+
+                    return false;
+                }else
+                {
+                  document.getElementById('aaa_1').style.display='none';
+                  document.getElementById('aaa_1_5_1').readOnly=false;
+                  resultado=parseInt(document.getElementById('aaa_1_3_2').value)-campo1;
+                
+                  document.getElementById(valor_campo2).value=resultado;
+                }
+                
+              break;
+              case '4':
+                if(parseInt(document.getElementById(valor_campo1).value)<var_50 || parseInt(document.getElementById(valor_campo1).value)>var_1840)
+                {
+                    document.getElementById('aaa_1').style.display='block';
+                    document.getElementById('aaa_1').innerHTML='Este valor no puede ser menor a '+var_50+' ni mayor de '+var_1840;
+                    document.getElementById(valor_campo2).value=0;
+                    return false;
+                }else
+                {
+                  document.getElementById('aaa_1').style.display='none';
+
+                  resultado=parseInt(document.getElementById('aaa_1_4_2').value)-campo1;
+                
+                document.getElementById(valor_campo2).value=resultado;
+                }
+                
+              break;
+          }
+          
+          
+      break;
+      case '2':
+
+      break;
+      case '3':
+        
+      break;
+    }
+}
+function control_cartulina_tabla_hay_que_bobinar(campo,ancho,div,bobina,aaa_1_1_2)
+{
+    var hay_que_bobinar=document.getElementById(campo).value;
+    if(hay_que_bobinar=='0')
+    {
+      return false;
+    }
+    if(hay_que_bobinar=='SI')
+    {
+      document.getElementById(div).style.display='block';
+      document.getElementById(aaa_1_1_2).value=document.getElementById(ancho).value;
+    }else
+    {
+      document.getElementById(div).style.display='none';
+    }
+    
+}
+function control_cartulina_reiniciar_calculos_bobinas_cortes_generica(gramaje,ancho,kilos,div_rojo,div_verde,bobina)
+{
+    var ancho_minimo_bobina= parseInt(document.form.ancho_minimo_bobina.value);
+    var ancho_cotizado=parseInt(document.form.ancho_de_bobina.value);
+    var gramaje_cotizado=document.form.gramaje.value;
+    if(kilos=='0' || kilos=='')
+    {
+        document.getElementById(div_rojo).style.display='none';
+        return false;
+    }else
+    {
+      if (ancho_minimo_bobina>ancho)
+        {
+          document.getElementById(div_rojo).style.display='block';
+          document.getElementById(div_rojo).innerHTML="No es posible calcular porque el ancho seleccionado de bobina es menor al Ancho de la bobina cotizada";
+          return false;
+        }else
+        {
+          if(kilos>3000)
+          {
+          document.getElementById(div_rojo).style.display='block'; 
+          document.getElementById(div_rojo).innerHTML="La cantidad de kilos no puede ser mayor a 3.000";
+              return false;
+          }
+          var total_metros_de_bobina_cotizado=Math.round((kilos/(ancho*gramaje_cotizado)*1000000 ));
+          var total_metros_de_bobina_seleccionado=Math.round((kilos/(ancho*gramaje)*1000000 ));
+          
+            var metros_restantes=document.form.total_metros_cotizados.value-total_metros_de_bobina_seleccionado;
+            //console.log('metros restates='+Math.sign(metros_restantes));
+
+            var pliegos_restantes=Math.round((metros_restantes/document.form.largo_a_cortar.value)*100);
+            var kilos_restantes_cotizado=Math.round((metros_restantes*gramaje_cotizado*ancho_cotizado)/1000000);
+            var kilos_restantes_seleccionado=Math.round((metros_restantes*gramaje*ancho)/1000000);
+            switch(bobina)
+            {
+               case '1':
+                  document.form.bobina_1_total_metros_cotizados.value=total_metros_de_bobina_seleccionado;
+                  //total_metros_de_bobina_seleccionado=total_metros_de_bobina_seleccionado;
+                  metros_restantes2=metros_restantes;
+                  pliegos_restantes2=pliegos_restantes;
+                  kilos_restantes_seleccionado2=kilos_restantes_seleccionado;
+                  var textofinal_1="Total metros de esta bobina ("+bobina+" bobina) "+total_metros_de_bobina_seleccionado+" . Total metros faltantes "+metros_restantes+" metros. Total pliegos faltantes: "+pliegos_restantes+" pliegos . Kilos faltantes: "+kilos_restantes_cotizado+" kilos. Basado en bob seleccionada: Gramaje cotizado: "+gramaje_cotizado+" grs, ANCHO cotizado "+document.form.ancho_de_bobina.value+" mm";
+                  var textofinal_2="Total metros de esta bobina ("+bobina+" bobina) "+total_metros_de_bobina_seleccionado+" . Total metros sobrantes "+metros_restantes+" metros. Total pliegos sobrantes: "+pliegos_restantes+" pliegos . Kilos sobrantes: "+kilos_restantes_seleccionado+" kilos. Basado en bob seleccionada: Gramaje seleccionado: "+gramaje+" grs, ANCHO seleccionado "+ancho+" mm";
+               break; 
+               case '2':
+                  document.form.bobina_2_total_metros_cotizados.value=total_metros_de_bobina_seleccionado;
+
+                  total_metros_de_bobina_seleccionado2=parseInt(total_metros_de_bobina_seleccionado)+parseInt(document.form.bobina_1_total_metros_cotizados.value);
+                  metros_restantes2=parseInt(document.form.total_metros_cotizados.value)-total_metros_de_bobina_seleccionado2;
+                  metros_restantes2_formula=" "+document.form.total_metros_cotizados.value+"-"+total_metros_de_bobina_seleccionado2+" ";
+                  //pliegos_restantes=pliegos_restantes;
+                  pliegos_restantes2=Math.round((metros_restantes2/document.form.largo_a_cortar.value)*100);
+                  kilos_restantes_seleccionado2=Math.round((metros_restantes2*gramaje*ancho)/1000000);
+                  var textofinal_1="Total metros de esta bobina ("+bobina+" bobina) "+total_metros_de_bobina_seleccionado+" . Total metros faltantes "+metros_restantes+" metros. Total pliegos faltantes: "+pliegos_restantes+" pliegos . Kilos faltantes: "+kilos_restantes_cotizado+" kilos. Basado en bob seleccionada: Gramaje cotizado: "+gramaje_cotizado+" grs, ANCHO cotizado "+document.form.ancho_de_bobina.value+" mm";
+                  var textofinal_2="Total metros de esta bobina ("+bobina+" bobina) "+total_metros_de_bobina_seleccionado2+" . Total metros sobrantes "+metros_restantes2+" metros. Total pliegos sobrantes: "+pliegos_restantes2+" pliegos . Kilos sobrantes: "+kilos_restantes_seleccionado2+" kilos. Basado en bob seleccionada: Gramaje seleccionado: "+gramaje+" grs, ANCHO seleccionado "+ancho+" mm";
+               break; 
+               case '3':
+                    total_metros_de_bobina_seleccionado2=parseInt(total_metros_de_bobina_seleccionado)+parseInt(document.form.bobina_1_total_metros_cotizados.value)+parseInt(document.form.bobina_2_total_metros_cotizados.value);
+                  metros_restantes2=parseInt(document.form.total_metros_cotizados.value)-total_metros_de_bobina_seleccionado2;
+                  metros_restantes2_formula=" "+document.form.total_metros_cotizados.value+"-"+total_metros_de_bobina_seleccionado2+" ";
+                  //pliegos_restantes=pliegos_restantes;
+                  pliegos_restantes2=Math.round((metros_restantes2/document.form.largo_a_cortar.value)*100);
+                  kilos_restantes_seleccionado2=Math.round((metros_restantes2*gramaje*ancho)/1000000);
+                  var textofinal_1="Total metros de esta bobina ("+bobina+" bobina) "+total_metros_de_bobina_seleccionado+" . Total metros faltantes "+metros_restantes+" metros. Total pliegos faltantes: "+pliegos_restantes+" pliegos . Kilos faltantes: "+kilos_restantes_cotizado+" kilos. Basado en bob seleccionada: Gramaje cotizado: "+gramaje_cotizado+" grs, ANCHO cotizado "+document.form.ancho_de_bobina.value+" mm";
+                  var textofinal_2="Total metros de esta bobina ("+bobina+" bobina) "+total_metros_de_bobina_seleccionado2+" . Total metros sobrantes "+metros_restantes2+" metros. Total pliegos sobrantes: "+pliegos_restantes2+" pliegos . Kilos sobrantes: "+kilos_restantes_seleccionado2+" kilos. Basado en bob seleccionada: Gramaje seleccionado: "+gramaje+" grs, ANCHO seleccionado "+ancho+" mm";
+               break; 
+            }
+            
+            //console.log(textofinal_1);
+            document.getElementById(div_rojo).style.display='block';
+            if(Math.sign(metros_restantes)=='-1')
+            {
+                document.getElementById(div_rojo).style.background='green';
+                document.form.bobina_1_estado.value='1';
+                /*
+                document.getElementById('ancho_seleccionado_de_bobina2').readOnly=true;
+                document.form.ancho_seleccionado_de_bobina2.value=0;
+                document.getElementById('kilos_bobina_seleccionada2').readOnly=true;
+                document.form.kilos_bobina_seleccionada2.value=0;
+                document.getElementById('kilos_bobina_seleccionada_div_rojo2').style.display='none';
+                document.getElementById('kilos_bobina_seleccionada_div_verde2').style.display='none';
+
+                
+                document.getElementById('ancho_seleccionado_de_bobina3').readOnly=true;
+                document.form.ancho_seleccionado_de_bobina3.value=0;
+                document.getElementById('kilos_bobina_seleccionada3').readOnly=true;
+                document.form.kilos_bobina_seleccionada3.value=0;
+                 document.getElementById('kilos_bobina_seleccionada_div_rojo3').style.display='none';
+                document.getElementById('kilos_bobina_seleccionada_div_verde3').style.display='none';
+                */
+            }else
+            {
+                document.getElementById(div_rojo).style.background='red';
+                document.form.bobina_1_estado.value='0';
+            }
+            document.getElementById(div_rojo).innerHTML=textofinal_1;
+            document.getElementById(div_verde).style.display='block';
+            document.getElementById(div_verde).innerHTML=textofinal_2;
+            switch(bobina)
+            {
+               case '1':
+                   if(Math.sign(kilos_restantes_seleccionado)=='-1')
+                   {
+                    document.getElementById(div_rojo).style.display='none';
+                  }else
+                  {
+                    document.getElementById(div_rojo).style.display='block';
+                  }
+                   
+               break; 
+               case '2':
+
+               break; 
+                    
+            }
+            return false;
+             
+        }
+    }
+
+}
+function control_cartulina_hay_stock_parcial_opciones(valor)
+{
+   switch(valor)
+   {
+      case '1':
+        //document.getElementById('hay_stock_total').style.display='none';
+        document.getElementById('comprar_total').style.display='none';
+        //document.getElementById('stock_parcial').style.display='block';
+        //document.getElementById('comprar_parcial').style.display='none';
+        //document.getElementById('bobinas').style.display='block';
+      break;
+      case '2':
+        document.getElementById('comprar_total').style.display='block';
+      break;
+   }         
+}
+function control_cartulina_hay_que_bobinar(hay_que_bobinar,bobina)
+{
+  
+    var ancho_minimo_bobina= parseInt(document.form.ancho_minimo_bobina.value);
+  switch(bobina)
+  {
+    case '1':
+      var valor_ancho=document.form.ancho_seleccionado_de_bobina.value;
+    break;
+    case '2':
+      var valor_ancho=document.form.ancho_seleccionado_de_bobina2.value;
+    break;
+    case '3':
+      var valor_ancho=document.form.ancho_seleccionado_de_bobina3.value;
+    break;
+  }
+  
+  var ancho=parseInt(valor_ancho);
+  var resta =ancho-ancho_minimo_bobina;
+  //console.log('ancho_minimo_bobina='+ancho_minimo_bobina+'\nancho seleccionado='+ancho+'\nresta='+resta);
+  //console.log(document.getElementById(hay_que_bobinar).options[document.getElementById(hay_que_bobinar).selectedIndex].value);
+  if(resta<=100)
+  {
+    //document.getElementById(hay_que_bobinar).selectedIndex = "NO";
+    //document.form.hay_que_bobinar.value="NO";
+    //document.getElementById(hay_que_bobinar).options[document.getElementById(hay_que_bobinar).selectedIndex].value='NO';
+    document.getElementById(hay_que_bobinar).value="NO";
+  }else
+  {
+    //document.getElementById(hay_que_bobinar).selectedIndex = "SI";
+    //document.form.hay_que_bobinar.value="SI";
+    //document.getElementById(hay_que_bobinar).options[document.getElementById(hay_que_bobinar).selectedIndex].value='SI';
+    document.getElementById(hay_que_bobinar).value="SI";
+  }
+}
 function control_cartulina_reiniciar_calculos_bobinas_cortes(gramaje)
 {
     var ancho_minimo_bobina= parseInt(document.form.ancho_minimo_bobina.value); 
     var ancho_seleccionado_de_bobina=parseInt(document.form.ancho_seleccionado_de_bobina.value);
+    var gramaje_cotizado=gramaje;
+    
+    gramaje=document.form.descripcion_de_la_tapa.value;
+
     if(document.form.kilos_bobina_seleccionada.value=='0' || document.form.kilos_bobina_seleccionada.value=='')
     {
         document.getElementById('kilos_bobina_seleccionada_div').style.display='none';
@@ -5621,11 +6021,48 @@ function control_cartulina_reiniciar_calculos_bobinas_cortes(gramaje)
             var ancho=document.form.ancho_seleccionado_de_bobina.value;
             //var metros_restantes=((kilos/ancho*gramaje)*1000000) ;
             var total_metros_cotizados=Math.round((kilos/(ancho*gramaje)*1000000 ));
+            document.form.bobina_1_total_metros_cotizados.value=total_metros_cotizados;
             var metros_restantes=document.form.total_metros_cotizados.value-total_metros_cotizados;
+            //console.log('metros restates='+Math.sign(metros_restantes));
+
             var pliegos_restantes=Math.round((metros_restantes/document.form.largo_a_cortar.value)*100);
             var formula=" ("+kilos+"/("+ancho+"*"+gramaje+")*1000000 ) ";
-            var kilos_restantes=Math.round((metros_restantes*gramaje*1000)/1000000);
-            document.getElementById('kilos_bobina_seleccionada_div').innerHTML="Total de metros ingresados (1 bobina) "+total_metros_cotizados+" . Total metros restantes: "+metros_restantes+" metros. Total pliegos restantes: "+pliegos_restantes+" pliegos . Kilos faltantes: "+kilos_restantes+" kilos. Basado en bob seleccionada: Gramaje Cotizado: "+gramaje+" grs, 1000 mm";
+            var kilos_restantes=Math.round((metros_restantes*gramaje_cotizado*1000)/1000000);
+            var kilos_restantes_formula="("+metros_restantes+")";
+            if(Math.sign(metros_restantes)=='-1')
+            {
+                kilos_restantes=Math.round((metros_restantes*gramaje*ancho)/1000000);
+                ancho_de_bobina_1000=document.form.ancho_seleccionado_de_bobina.value;
+
+                document.getElementById('kilos_bobina_seleccionada_div').style.background='green';
+                /*bobina 2*/
+                document.getElementById('ancho_seleccionado_de_bobina2').readOnly=true;
+                document.form.ancho_seleccionado_de_bobina2.value=0;
+                document.getElementById('kilos_bobina_seleccionada2').readOnly=true;
+                document.form.kilos_bobina_seleccionada2.value=0;
+                document.getElementById('kilos_bobina_seleccionada_div2').style.display='none';
+                /*bobina 3*/  
+                document.getElementById('ancho_seleccionado_de_bobina3').readOnly=true;
+                document.form.ancho_seleccionado_de_bobina3.value=0;
+                document.getElementById('kilos_bobina_seleccionada3').readOnly=true;
+                document.form.kilos_bobina_seleccionada3.value=0;
+                document.getElementById('kilos_bobina_seleccionada_div3').style.display='none';
+                var textofinal="Verde. Este es en caso que sea la primera bobina que complete le orden Total metros de esta bobina (1 bobina) "+total_metros_cotizados+" . Total metros SOBRANTES "+metros_restantes+" metros. Total pliegos SOBRANTES: "+pliegos_restantes+" pliegos . Kilos SOBRANTES: "+kilos_restantes+" kilos. Basado en bob seleccionada: Gramaje SELECCIONADS: "+gramaje+" grs, ANCHO SELECCIONADO "+document.form.ancho_seleccionado_de_bobina.value+" mm";
+            }else
+            {
+              kilos_restantes=Math.round((metros_restantes*gramaje_cotizado*document.form.ancho_de_bobina.value)/1000000);
+              ancho_de_bobina_1000=document.form.ancho_de_bobina.value;
+              document.getElementById('kilos_bobina_seleccionada_div').style.background='red';
+              document.getElementById('ancho_seleccionado_de_bobina2').readOnly=false;
+              document.getElementById('kilos_bobina_seleccionada2').readOnly=false;
+              document.getElementById('ancho_seleccionado_de_bobina3').readOnly=false;
+              document.getElementById('kilos_bobina_seleccionada3').readOnly=false;
+              var textofinal="Total metros de esta bobina (1 bobina) "+total_metros_cotizados+" . Total metros restantes: "+metros_restantes+" metros. Total pliegos restantes: "+pliegos_restantes+" pliegos . Kilos faltantes: "+kilos_restantes+" kilos. Basado en bob seleccionada: Gramaje Cotizado: "+gramaje_cotizado+" grs, ANCHO COTIZADO  "+document.form.ancho_de_bobina.value+" mm";
+            }
+            document.getElementById('kilos_bobina_seleccionada_div').innerHTML=textofinal;
+            /*
+            document.getElementById('kilos_bobina_seleccionada_div').innerHTML="Total metros de esta bobina (1 bobina) "+total_metros_cotizados+" . Total metros restantes: "+metros_restantes+" metros. Total pliegos restantes: "+pliegos_restantes+" pliegos . Kilos faltantes: "+kilos_restantes+" kilos. Basado en bob seleccionada: Gramaje Cotizado: "+gramaje+" grs, "+ancho_de_bobina_1000+" mm";
+            */
             return false;
         }
         
@@ -5636,6 +6073,7 @@ function control_cartulina_reiniciar_calculos_bobinas_cortes2(gramaje)
 {
     var ancho_minimo_bobina= parseInt(document.form.ancho_minimo_bobina.value); 
     var ancho_seleccionado_de_bobina=parseInt(document.form.ancho_seleccionado_de_bobina2.value);
+    gramaje=document.form.descripcion_de_la_tapa2.value;
     if(document.form.kilos_bobina_seleccionada2.value=='0' || document.form.kilos_bobina_seleccionada.value2=='')
     {
         document.getElementById('kilos_bobina_seleccionada_div2').style.display='none';
@@ -5651,15 +6089,49 @@ function control_cartulina_reiniciar_calculos_bobinas_cortes2(gramaje)
         {
             document.getElementById('kilos_bobina_seleccionada_div2').style.display='block';
            
-            var kilos =document.form.kilos_bobina_seleccionada2.value;
-            var ancho=document.form.ancho_seleccionado_de_bobina2.value;
+            var kilos =parseInt(document.form.kilos_bobina_seleccionada2.value);
+            var ancho=parseInt(document.form.ancho_seleccionado_de_bobina2.value);
             //var metros_restantes=((kilos/ancho*gramaje)*1000000) ;
             var total_metros_cotizados=Math.round((kilos/(ancho*gramaje)*1000000 ));
             var metros_restantes=document.form.total_metros_cotizados.value-total_metros_cotizados;
             var pliegos_restantes=Math.round((metros_restantes/document.form.largo_a_cortar.value)*100);
             var formula=" ("+kilos+"/("+ancho+"*"+gramaje+")*1000000 ) ";
             var kilos_restantes=Math.round((metros_restantes*gramaje*1000)/1000000);
-            document.getElementById('kilos_bobina_seleccionada_div2').innerHTML="Total de metros ingresados (2 bobina) "+total_metros_cotizados+" . Total metros restantes: "+metros_restantes+" metros. Total pliegos restantes: "+pliegos_restantes+" pliegos . Kilos faltantes: "+kilos_restantes+" kilos. Basado en bob seleccionada: Gramaje Cotizado: "+gramaje+" grs, 1000 mm";
+
+
+            var kilos2 = kilos+parseInt(document.form.kilos_bobina_seleccionada.value);
+            var ancho2=ancho+parseInt(document.form.ancho_seleccionado_de_bobina.value);
+            var total_metros_cotizados2=Math.round((kilos/(ancho*gramaje)*1000000 ));
+            //console.log('total_metros_cotizados2='+total_metros_cotizados2);
+            document.form.bobina_2_total_metros_cotizados.value=total_metros_cotizados2;
+            
+            
+            total_metros_cotizados2=total_metros_cotizados2+parseInt(document.form.bobina_1_total_metros_cotizados.value);
+            var metros_restantes2=document.form.total_metros_cotizados.value-total_metros_cotizados2;
+            var pliegos_restantes2=Math.round((metros_restantes2/document.form.largo_a_cortar.value)*100);
+            
+            var formula2=" ("+kilos2+"/("+ancho2+"*"+gramaje+")*1000000 ) ";
+            var kilos_restantes2=Math.round((metros_restantes2*gramaje*1000)/1000000);
+              //console.log('kilos ='+kilos+'\nkilos 2='+kilos2+'\nancho='+ancho+'\nancho 2='+ancho2);
+              if(Math.sign(pliegos_restantes2)=='-1')
+              {
+                  document.getElementById('kilos_bobina_seleccionada_div2').style.background='green';
+                  var texto1='Kilos sobrantes';
+                var texto2='Gramaje seleccionado';
+                var texto3='Basado en bob seleccionada';
+                var textofinal="Verde. Este es en caso que sea la primera bobina que complete le orden Total metros de esta bobina (1 bobina) "+total_metros_cotizados+" . Total metros SOBRANTES "+metros_restantes+" metros. Total pliegos SOBRANTES: "+pliegos_restantes+" pliegos . Kilos DOBRANTES: "+kilos_restantes+" kilos. Basado en bob seleccionada: Gramaje SELECCIONADS: "+gramaje+" grs, ANCHO SELECCIONADO "+document.form.ancho_seleccionado_de_bobina2.value+" mm";
+              }else
+              {
+                  document.getElementById('kilos_bobina_seleccionada_div2').style.background='red';
+                  var texto1='Kilos faltantes';
+                  var texto2='Gramaje cotizado';
+                  var texto3='Basado en bob cotizada';
+                  var textofinal="Total metros de esta bobina (1 bobina) "+total_metros_cotizados+" . Total metros restantes: "+metros_restantes+" metros. Total pliegos restantes: "+pliegos_restantes+" pliegos . Kilos faltantes: "+kilos_restantes+" kilos. Basado en bob seleccionada: Gramaje Cotizado: "+gramaje+" grs, ANCHO COTIZADO  "+document.form.ancho_de_bobina.value+" mm";
+              }
+              /*
+            document.getElementById('kilos_bobina_seleccionada_div2').innerHTML="Total metros de esta bobina (2 bobina) "+total_metros_cotizados+" . Total metros restantes: "+metros_restantes+" metros. Total pliegos restantes: "+pliegos_restantes+" pliegos . Kilos faltantes: "+kilos_restantes+" kilos. Basado en bob seleccionada: Gramaje Cotizado: "+gramaje+" grs, "+document.form.ancho_de_bobina.value+" mm<br />Total de metros ingresados acumulados (2 bobina acumulado) "+total_metros_cotizados2+" . Total metros restantes: "+metros_restantes2+" metros. Total pliegos restantes: "+pliegos_restantes2+" pliegos . "+texto1+": "+kilos_restantes2+" kilos. "+texto2+": "+texto3+": "+gramaje+" grs, "+document.form.ancho_de_bobina.value+" mm";
+            */
+            document.getElementById('kilos_bobina_seleccionada_div2').innerHTML=textofinal;
             return false;
         }
         
@@ -5670,6 +6142,7 @@ function control_cartulina_reiniciar_calculos_bobinas_cortes3(gramaje)
 {
     var ancho_minimo_bobina= parseInt(document.form.ancho_minimo_bobina.value); 
     var ancho_seleccionado_de_bobina=parseInt(document.form.ancho_seleccionado_de_bobina3.value);
+    gramaje=document.form.descripcion_de_la_tapa3.value;
     if(document.form.kilos_bobina_seleccionada3.value=='0' || document.form.kilos_bobina_seleccionada.value2=='')
     {
         document.getElementById('kilos_bobina_seleccionada_div3').style.display='none';
@@ -5685,18 +6158,89 @@ function control_cartulina_reiniciar_calculos_bobinas_cortes3(gramaje)
         {
             document.getElementById('kilos_bobina_seleccionada_div3').style.display='block';
            
-            var kilos =document.form.kilos_bobina_seleccionada3.value;
-            var ancho=document.form.ancho_seleccionado_de_bobina3.value;
+            var kilos =parseInt(document.form.kilos_bobina_seleccionada3.value);
+            var ancho=parseInt(document.form.ancho_seleccionado_de_bobina3.value);
             //var metros_restantes=((kilos/ancho*gramaje)*1000000) ;
             var total_metros_cotizados=Math.round((kilos/(ancho*gramaje)*1000000 ));
             var metros_restantes=document.form.total_metros_cotizados.value-total_metros_cotizados;
             var pliegos_restantes=Math.round((metros_restantes/document.form.largo_a_cortar.value)*100);
             var formula=" ("+kilos+"/("+ancho+"*"+gramaje+")*1000000 ) ";
             var kilos_restantes=Math.round((metros_restantes*gramaje*1000)/1000000);
-            document.getElementById('kilos_bobina_seleccionada_div3').innerHTML="Total de metros ingresados (3 bobina) "+total_metros_cotizados+" . Total metros restantes: "+metros_restantes+" metros. Total pliegos restantes: "+pliegos_restantes+" pliegos . Kilos faltantes: "+kilos_restantes+" kilos. Basado en bob seleccionada: Gramaje Cotizado: "+gramaje+" grs, 1000 mm";
+
+            var kilos2 = kilos+parseInt(document.form.kilos_bobina_seleccionada3.value)+parseInt(document.form.kilos_bobina_seleccionada2.value);
+            var ancho2=ancho+parseInt(document.form.ancho_seleccionado_de_bobina3.value)+parseInt(document.form.ancho_seleccionado_de_bobina2.value);
+            var total_metros_cotizados2=Math.round((kilos/(ancho*gramaje)*1000000 ));
+            var metros_restantes2=document.form.total_metros_cotizados.value-total_metros_cotizados2;
+
+            total_metros_cotizados2=total_metros_cotizados2+parseInt(document.form.bobina_1_total_metros_cotizados.value)+parseInt(document.form.bobina_2_total_metros_cotizados.value);
+            var metros_restantes3=parseInt(document.form.total_metros_cotizados.value)-total_metros_cotizados2;
+            //console.log(document.form.total_metros_cotizados.value+'-'+total_metros_cotizados2);
+            //var pliegos_restantes2=Math.round((metros_restantes2/document.form.largo_a_cortar.value)*100);
+            
+            //console.log('es '+Math.sign(pliegos_restantes2));
+            var pliegos_restantes2=Math.round((metros_restantes3/document.form.largo_a_cortar.value)*100);
+            if(Math.sign(pliegos_restantes2)=='-1')
+            {
+                document.getElementById('kilos_bobina_seleccionada_div3').style.background='green';
+                 ancho_de_bobina_1000=document.form.ancho_seleccionado_de_bobina3.value;
+               
+                var kilos_restantes2=Math.round(document.form.kilos_bobina_seleccionada3.value-(Math.abs(pliegos_restantes2)*document.form.ancho_seleccionado_de_bobina3.value*gramaje*document.form.largo_a_cortar.value)/100000000);
+                var kilos_restantes2_texto=' '+document.form.kilos_bobina_seleccionada3.value+'-('+pliegos_restantes2+'*'+document.form.ancho_seleccionado_de_bobina3.value+'*'+gramaje+'*'+document.form.largo_a_cortar.value+')/10000000';
+                var kilos_restantes22=1203-(1539*961*325*116)/100000000;
+                var texto1='Kilos sobrantes';
+                var texto2='Gramaje seleccionado';
+                var texto3='Basado en bob seleccionada';
+                var textofinal="Verde. Este es en caso que sea la primera bobina que complete le orden Total metros de esta bobina (1 bobina) "+total_metros_cotizados+" . Total metros SOBRANTES "+metros_restantes+" metros. Total pliegos SOBRANTES: "+pliegos_restantes+" pliegos . Kilos DOBRANTES: "+kilos_restantes+" kilos. Basado en bob seleccionada: Gramaje SELECCIONADS: "+gramaje+" grs, ANCHO SELECCIONADO "+document.form.ancho_seleccionado_de_bobina3.value+" mm";
+            }else
+            {
+               ancho_de_bobina_1000=document.form.ancho_seleccionado_de_bobina.value;
+              document.getElementById('kilos_bobina_seleccionada_div3').style.background='red';
+              var kilos_restantes2=Math.round((metros_restantes*gramaje*1000)/1000000);
+              var texto1='Kilos faltantes';
+              var texto2='Gramaje cotizado';
+              var texto3='BBasado en bob cotizada';
+               var textofinal="Total metros de esta bobina (1 bobina) "+total_metros_cotizados+" . Total metros restantes: "+metros_restantes+" metros. Total pliegos restantes: "+pliegos_restantes+" pliegos . Kilos faltantes: "+kilos_restantes+" kilos. Basado en bob seleccionada: Gramaje Cotizado: "+gramaje+" grs, ANCHO COTIZADO  "+document.form.ancho_de_bobina.value+" mm";
+              /*
+              var kilos_restantes2=Math.round(document.form.kilos_bobina_seleccionada3.value-(pliegos_restantes2*document.form.ancho_seleccionado_de_bobina3.value*gramaje*document.form.largo_a_cortar.value*)/100000000);
+              */
+              //var kilos_restantes2=1203-(1539*961*325*116)/100000000;
+              
+            }
+            /*
+            document.getElementById('kilos_bobina_seleccionada_div3').innerHTML="Total metros de esta bobina (3 bobina) "+total_metros_cotizados+" . Total metros restantes: "+metros_restantes+" metros. Total pliegos restantes: "+pliegos_restantes+" pliegos . Kilos faltantes: "+kilos_restantes+" kilos. Basado en bob seleccionada: Gramaje Cotizado: "+gramaje+" grs, "+document.form.ancho_de_bobina.value+" mm<br />Total de metros ingresados acumulados (3 bobina acumulado) "+total_metros_cotizados2+" . Total metros restantes: "+metros_restantes3+" metros. Total pliegos restantes: "+pliegos_restantes2+" pliegos . "+texto1+": "+kilos_restantes2+" kilos. "+texto3+": "+texto2+": "+gramaje+" grs, "+document.form.ancho_de_bobina.value+" mm";
+            */
+            document.getElementById('kilos_bobina_seleccionada_div3').innerHTML=textofinal;
             return false;
         }
         
     }
     
+}
+function control_cartulina_mostrar(id)
+{
+  control_cartulina_ocultar(id);
+  //control_cartulina_ocultar('kilos_bobina_seleccionada_div');
+  //control_cartulina_ocultar('kilos_bobina_seleccionada_div2');
+  //control_cartulina_ocultar('kilos_bobina_seleccionada_div3');
+  //document.getElementById(id).style.display='block';
+}
+function control_cartulina_ocultar(id)
+{
+  document.getElementById(id).style.display='none';
+}
+function control_cartulina_validar_ancho_compra_total()
+{
+  var ancho_seleccionado=parseInt(document.form.Ancho_CompraTotal.value);
+  var ancho_minimo_bobina= parseInt(document.form.ancho_minimo_bobina.value);
+  if(ancho_seleccionado<ancho_minimo_bobina)
+  {
+    alert("El ancho seleccionado no puede ser menor que Ancho mínimo bobina");
+    document.form.Ancho_CompraTotal.value='0';
+    return false;
+  }
+}
+function control_cartulina_compra_total()
+{
+     
+     
 }
